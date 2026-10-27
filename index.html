@@ -285,7 +285,7 @@
   const $ = id => document.getElementById(id);
   const pad = n => String(n).padStart(2, '0');
   const money = n => '$' + Math.round(n).toLocaleString('es');
-  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
   // Los datos viven en Firestore; en este navegador solo se recuerda qué rifa estaba abierta.
   let state = { raffles: [], current: localStorage.getItem(KEY) || null };
@@ -348,7 +348,7 @@
 
   $('createForm').onsubmit = e => {
     e.preventDefault();
-    const r = { id: uid(), name: $('fName').value.trim(), price: parseFloat($('fPrice').value) || 0, date: $('fDate').value, sold: {}, createdAt: Date.now() };
+    const r = { id: newId(), name: $('fName').value.trim(), price: parseFloat($('fPrice').value) || 0, date: $('fDate').value, sold: {}, createdAt: Date.now() };
     state.raffles.unshift(r);
     persist(r);
     e.target.reset();
