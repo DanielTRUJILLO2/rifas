@@ -76,7 +76,7 @@
   .top { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
   .top h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.15; }
   .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-  .chip { background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 99px; padding: 5px 13px; font-size: .84rem; color: var(--muted); }
+  .chip { background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 99px; padding: 5px 13px; font-size: .84rem; color: var(--muted); text-transform: capitalize; }
   .chip b { color: var(--text); font-weight: 600; }
   .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 22px; align-items: start; }
   .grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 7px; }
@@ -133,40 +133,85 @@
   .macts { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
   .macts .primary { flex: 1; }
 
-  /* Tablet */
+  
+  button, .num, .st, select { touch-action: manipulation; }
+
+  /* Barra de resumen fija (solo celular/tablet) */
+  .hud { display: none; position: sticky; top: 0; z-index: 5; margin: 0 -2px 10px; padding: 8px 10px 9px; border-radius: 14px; border: 1px solid var(--line-2);
+         background: rgba(14,20,42,.88); backdrop-filter: blur(10px); box-shadow: 0 8px 22px rgba(0,0,0,.4); }
+  .hud-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; }
+  .hud-row b { display: block; font-family: var(--serif); font-size: 1.02rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .hud-row span { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+  .hud-row .g b { color: var(--paid); } .hud-row .y b { color: var(--pend); }
+  .bar.slim { height: 6px; margin: 8px 0 0; }
+
+  .tl { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .tl h1 { overflow: hidden; text-overflow: ellipsis; }
+  .badge { display: inline-block; font-size: .72rem; font-weight: 600; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--line-2); color: var(--muted); white-space: nowrap; }
+  .badge.cash { color: #86efac; border-color: rgba(134,239,172,.35); } .badge.trans { color: #93c5fd; border-color: rgba(147,197,253,.35); }
+  .money .sep { height: 0; padding: 0; border: none; background: none; margin: 2px 0; }
+
+  #toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--gold); color: #1b1402; font-weight: 700;
+           padding: 10px 20px; border-radius: 99px; opacity: 0; pointer-events: none; transition: .25s; z-index: 30; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  #toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  /* Tablet y celular */
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .home { grid-template-columns: 1fr; }
+    .hud { display: block; }
   }
 
-  /* Celular */
+  /* Celular: compacto, los 100 números siempre a la vista */
   @media (max-width: 600px) {
-    body { padding: 16px 12px 40px; }
-    .card { padding: 16px; border-radius: 14px; }
-    .grid { grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    .num { font-size: 1.15rem; border-radius: 14px; }
-    .top { margin-bottom: 16px; }
-    .top .btn { width: 100%; }
-    .stat b { font-size: 1.45rem; }
+    body { padding: 10px 8px 70px; }
+    .card { padding: 14px 12px; border-radius: 14px; }
+    .card h2 { font-size: 1rem; margin-bottom: 12px; }
+    .hero { margin: 6px 0 20px; }
+    .top { margin-bottom: 10px; gap: 8px; }
+    .top h1 { font-size: 1.35rem; }
+    .chips { margin-top: 8px; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { white-space: nowrap; font-size: .76rem; padding: 4px 10px; }
+    #back { min-height: 34px; padding: 4px 11px; }
+    .layout { gap: 12px; }
+
+    .grid-card { padding: 10px 8px; }
+    .grid-card h2 { display: none; }
+    .grid { grid-template-columns: repeat(10, 1fr); gap: 4px; }
+    .num { border-radius: 8px; font-size: .78rem; font-weight: 600; }
+    .num:hover { transform: none; box-shadow: none; }
+    .num:active { transform: scale(.88); background: rgba(212,175,95,.25); }
+    .legend { margin-top: 10px; gap: 12px; font-size: .74rem; justify-content: center; }
+    .dot { width: 10px; height: 10px; margin-right: 5px; }
+
+    .stats { gap: 6px; } .stat { padding: 10px 4px; } .stat b { font-size: 1.3rem; }
+    .money div { padding: 10px 12px; }
+    .freeList { font-size: .76rem; }
+
     .tools > input, .tools > select { flex: 1 1 100%; }
     .tools > .btn { flex: 1 1 0; }
     .btn.primary { width: 100%; }
     .ritem .btn { width: 100%; }
 
-    /* La tabla se convierte en tarjetas */
+    /* Compradores: tarjetas de dos líneas, toca para editar */
     table, thead, tbody, tr, td { display: block; }
     thead { display: none; }
-    tr { background: rgba(5,8,20,.4); border: 1px solid var(--line); border-radius: 14px; padding: 8px 14px; margin-bottom: 10px; }
-    td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); text-align: right; }
-    td:first-child { border-top: none; }
-    td::before { content: attr(data-label); color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; text-align: left; }
-    td:last-child .btn { width: 100%; }
-    td:last-child::before { content: none; }
-    td:last-child { padding-top: 12px; }
+    tr { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "n nm st" "n ph mt"; gap: 3px 12px; align-items: center;
+         background: rgba(5,8,20,.4); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
+    tr:active { background: rgba(212,175,95,.1); }
+    td { padding: 0; border: none; text-align: left; min-width: 0; }
+    td:nth-child(1) { grid-area: n; } td:nth-child(2) { grid-area: nm; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    td:nth-child(3) { grid-area: ph; font-size: .85rem; } td:nth-child(4) { grid-area: st; justify-self: end; }
+    td:nth-child(5) { grid-area: mt; justify-self: end; } td:nth-child(6), td:nth-child(7) { display: none; }
+    .st { padding: 4px 11px; min-height: 28px; font-size: .75rem; }
+    td .tag { min-width: 36px; padding: 6px 8px; font-size: .95rem; }
 
     /* Ventana tipo hoja inferior */
     .overlay { align-items: flex-end; padding: 0; }
-    .modal { max-width: none; border-radius: 22px 22px 0 0; padding: 22px 18px calc(22px + env(safe-area-inset-bottom)); animation: up .25s ease both; }
+    .modal { max-width: none; border-radius: 22px 22px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); animation: up .25s ease both; }
+    .modal .big { font-size: 2.6rem; }
+    .modal label { margin-top: 12px; }
     @keyframes up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
   }
 </style>
@@ -217,20 +262,30 @@
   <!-- ============ DETALLE DE RIFA ============ -->
   <div id="raffle" class="hidden">
     <div class="top">
-      <div>
+      <div class="tl">
+        <button class="btn sm" id="back" aria-label="Volver a mis rifas">← Rifas</button>
         <h1 class="grad" id="rTitle"></h1>
-        <div class="chips">
-          <span class="chip"><b id="rDate"></b></span>
-          <span class="chip"><b id="rCount"></b></span>
-          <span class="chip">Precio: <b id="rPrice"></b></span>
-        </div>
       </div>
-      <button class="btn" id="back">← Todas las rifas</button>
+      <div class="chips">
+        <span class="chip"><b id="rDate"></b></span>
+        <span class="chip"><b id="rCount"></b></span>
+        <span class="chip">Precio: <b id="rPrice"></b></span>
+      </div>
+    </div>
+
+    <div class="hud">
+      <div class="hud-row">
+        <div><b id="hSold">0</b><span>Vendidos</span></div>
+        <div><b id="hAvail">100</b><span>Libres</span></div>
+        <div class="g"><b id="hPaid">$0</b><span>Cobrado</span></div>
+        <div class="y"><b id="hPend">$0</b><span>Por cobrar</span></div>
+      </div>
+      <div class="bar slim"><div class="p" id="hbPaid"></div><div class="q" id="hbPend"></div></div>
     </div>
 
     <div class="layout">
-      <section class="card">
-        <h2>Números del 00 al 99 — toca uno para registrar al comprador</h2>
+      <section class="card grid-card">
+        <h2>Toca un número para registrar al comprador</h2>
         <div class="grid" id="grid"></div>
         <div class="legend">
           <span><i class="dot"></i>Disponible</span>
@@ -254,6 +309,9 @@
           <div class="g"><span>Recaudado (pagado)</span><b id="mPaid">0</b></div>
           <div class="y"><span>Por cobrar (pendiente)</span><b id="mPend">0</b></div>
           <div><span>Falta por vender</span><b id="mLeft">0</b></div>
+          <div class="sep"></div>
+          <div><span id="mCashL">Efectivo</span><b id="mCash">0</b></div>
+          <div><span id="mTransL">Transferencia</span><b id="mTrans">0</b></div>
         </div>
         <div class="freeList" id="freeList"></div>
       </aside>
@@ -267,13 +325,15 @@
           <option value="all">Todos</option>
           <option value="paid">Solo pagados</option>
           <option value="pend">Solo pendientes</option>
+          <option value="efectivo">Pagó en efectivo</option>
+          <option value="transferencia">Pagó por transferencia</option>
         </select>
         <button class="btn" id="csv">Exportar CSV</button>
         <button class="btn" id="copy">Copiar</button>
       </div>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Nº</th><th>Nombre</th><th>Celular</th><th>Pago</th><th>Valor</th><th></th></tr></thead>
+          <thead><tr><th>Nº</th><th>Nombre</th><th>Celular</th><th>Pago</th><th>Método</th><th>Valor</th><th></th></tr></thead>
           <tbody id="tbody"></tbody>
         </table>
       </div>
@@ -307,9 +367,16 @@
     <label for="mPhone">Número de celular</label>
     <input type="tel" id="mPhone" placeholder="Ej: 3001234567">
     <label>Estado del pago</label>
-    <div class="seg">
+    <div class="seg" id="segPay">
       <button type="button" data-v="pend" class="pend">Pendiente</button>
       <button type="button" data-v="paid" class="paid">Pagado</button>
+    </div>
+    <div id="methodBox" class="hidden">
+      <label>Método de pago</label>
+      <div class="seg" id="segMethod">
+        <button type="button" data-v="efectivo" class="paid">Efectivo</button>
+        <button type="button" data-v="transferencia" class="paid">Transferencia</button>
+      </div>
     </div>
     <div class="macts">
       <button class="btn primary">Guardar</button>
@@ -317,6 +384,8 @@
     </div>
   </form>
 </div>
+
+<div id="toast" role="status"></div>
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
@@ -454,6 +523,18 @@
     $('mPaid').textContent = money(paid * r.price);
     $('mPend').textContent = money(pend * r.price);
     $('mLeft').textContent = money((100 - sold) * r.price);
+    const cash = nums.filter(n => r.sold[n].paid && r.sold[n].method === 'efectivo').length;
+    const trans = nums.filter(n => r.sold[n].paid && r.sold[n].method === 'transferencia').length;
+    $('mCashL').textContent = `Efectivo (${cash})`;
+    $('mCash').textContent = money(cash * r.price);
+    $('mTransL').textContent = `Transferencia (${trans})`;
+    $('mTrans').textContent = money(trans * r.price);
+    $('hSold').textContent = sold;
+    $('hAvail').textContent = 100 - sold;
+    $('hPaid').textContent = money(paid * r.price);
+    $('hPend').textContent = money(pend * r.price);
+    $('hbPaid').style.width = paid + '%';
+    $('hbPend').style.width = pend + '%';
     const free = [...Array(100).keys()].map(pad).filter(n => !r.sold[n]);
     $('freeList').textContent = free.length ? 'Disponibles: ' + free.join(', ') : '¡Rifa completa!';
 
@@ -468,6 +549,7 @@
       const s = r.sold[n];
       if (f === 'paid' && !s.paid) return false;
       if (f === 'pend' && s.paid) return false;
+      if ((f === 'efectivo' || f === 'transferencia') && !(s.paid && s.method === f)) return false;
       return !q || n.includes(q) || s.name.toLowerCase().includes(q) || (s.phone || '').includes(q);
     });
     const tb = $('tbody');
@@ -480,15 +562,24 @@
         : el('span', { textContent: '—', style: 'color:var(--muted)' });
       const st = el('button', {
         className: 'st ' + (s.paid ? 'paid' : 'pend'), textContent: s.paid ? 'Pagado' : 'Pendiente',
-        title: 'Clic para cambiar', onclick: () => { s.paid = !s.paid; persist(r); renderRaffle(); }
+        title: 'Clic para cambiar',
+        onclick: () => {
+          if (!s.paid) { openModal(n, true); return; } // al marcar pagado se pide el método
+          s.paid = false; s.method = ''; persist(r); renderRaffle(); toast('Marcado como pendiente');
+        }
       });
-      tb.append(el('tr', {},
-        el('td', { dataset: { label: 'Número' } }, el('span', { className: 'tag', textContent: n })),
-        el('td', { textContent: s.name, dataset: { label: 'Nombre' } }),
-        el('td', { dataset: { label: 'Celular' } }, phone),
-        el('td', { dataset: { label: 'Pago' } }, st),
-        el('td', { textContent: money(r.price), dataset: { label: 'Valor' } }),
-        el('td', {}, el('button', { className: 'btn sm', textContent: 'Editar', onclick: () => openModal(n) }))));
+      const method = s.paid && s.method
+        ? el('span', { className: 'badge ' + (s.method === 'efectivo' ? 'cash' : 'trans'), textContent: s.method === 'efectivo' ? 'Efectivo' : 'Transferencia' })
+        : el('span', { textContent: '—', style: 'color:var(--muted)' });
+      const tr = el('tr', { onclick: e => { if (!e.target.closest('a, button')) openModal(n); } },
+        el('td', {}, el('span', { className: 'tag', textContent: n })),
+        el('td', { textContent: s.name }),
+        el('td', {}, phone),
+        el('td', {}, st),
+        el('td', {}, method),
+        el('td', { textContent: money(r.price) }),
+        el('td', {}, el('button', { className: 'btn sm', textContent: 'Editar', onclick: () => openModal(n) })));
+      tb.append(tr);
     });
     const em = $('tEmpty');
     em.classList.toggle('hidden', rows.length > 0);
@@ -501,7 +592,7 @@
     const r = cur();
     return [r.name + ' — ' + fmtDate(r.date), ...Object.keys(r.sold).sort().map(n => {
       const s = r.sold[n];
-      return `${n} | ${s.name} | ${s.phone || 'sin celular'} | ${s.paid ? 'Pagado' : 'Pendiente'}`;
+      return `${n} | ${s.name} | ${s.phone || 'sin celular'} | ${s.paid ? 'Pagado' + (s.method ? ' (' + s.method + ')' : '') : 'Pendiente'}`;
     })].join('\n');
   }
   $('copy').onclick = () => {
@@ -512,9 +603,9 @@
   $('csv').onclick = () => {
     const r = cur();
     const q = v => '"' + String(v).replace(/"/g, '""') + '"';
-    const lines = ['Numero,Nombre,Celular,Estado,Valor', ...Object.keys(r.sold).sort().map(n => {
+    const lines = ['Numero,Nombre,Celular,Estado,Metodo,Valor', ...Object.keys(r.sold).sort().map(n => {
       const s = r.sold[n];
-      return [n, q(s.name), q(s.phone || ''), s.paid ? 'Pagado' : 'Pendiente', r.price].join(',');
+      return [n, q(s.name), q(s.phone || ''), s.paid ? 'Pagado' : 'Pendiente', s.paid ? (s.method || '') : '', r.price].join(',');
     })];
     const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' })), download: r.name + '.csv' });
     a.click(); URL.revokeObjectURL(a.href);
@@ -530,7 +621,7 @@
     if (!s) { out.textContent = `El número ${n} no fue vendido (quedó disponible).`; return; }
     out.append(el('div', { innerHTML: '' }),
       el('b', { textContent: `Número ${n}: ${s.name}`, style: 'font-size:1.15rem' }),
-      el('div', { textContent: `Estado: ${s.paid ? 'Pagado' : 'Pago pendiente'}`, style: 'margin-top:6px' }));
+      el('div', { textContent: `Estado: ${s.paid ? 'Pagado' + (s.method ? ' (' + s.method + ')' : '') : 'Pago pendiente'}`, style: 'margin-top:6px' }));
     const digits = (s.phone || '').replace(/\D/g, '');
     out.append(digits
       ? el('div', { style: 'margin-top:6px' }, 'Celular: ', el('a', { href: 'https://wa.me/' + digits, target: '_blank', rel: 'noopener', textContent: s.phone, style: 'color:#93c5fd' }))
@@ -540,20 +631,35 @@
   $('winNum').onkeydown = e => { if (e.key === 'Enter') findWinner(); };
 
   /* ---------- Modal ---------- */
-  let editing = null, paidSel = false;
+  let editing = null, paidSel = false, methodSel = 'efectivo';
   function setSeg(paid) {
     paidSel = paid;
-    document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', (b.dataset.v === 'paid') === paid));
+    document.querySelectorAll('#segPay button').forEach(b => b.classList.toggle('on', (b.dataset.v === 'paid') === paid));
+    $('methodBox').classList.toggle('hidden', !paid);
   }
-  document.querySelectorAll('.seg button').forEach(b => b.onclick = () => setSeg(b.dataset.v === 'paid'));
+  function setMethod(m) {
+    methodSel = m;
+    document.querySelectorAll('#segMethod button').forEach(b => b.classList.toggle('on', b.dataset.v === m));
+  }
+  document.querySelectorAll('#segPay button').forEach(b => b.onclick = () => setSeg(b.dataset.v === 'paid'));
+  document.querySelectorAll('#segMethod button').forEach(b => b.onclick = () => setMethod(b.dataset.v));
 
-  function openModal(n) {
+  let toastTimer;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('on'), 1800);
+  }
+
+  function openModal(n, forcePaid) {
     const s = cur().sold[n];
     editing = n;
     $('mNum').textContent = n;
     $('mName').value = s ? s.name : '';
     $('mPhone').value = s ? s.phone : '';
-    setSeg(s ? s.paid : false);
+    setSeg(forcePaid ? true : s ? s.paid : false);
+    setMethod(s && s.method ? s.method : 'efectivo');
     $('mFree').classList.toggle('hidden', !s);
     $('overlay').classList.remove('hidden');
     $('mName').focus();
@@ -565,12 +671,12 @@
 
   $('mForm').onsubmit = e => {
     e.preventDefault();
-    cur().sold[editing] = { name: $('mName').value.trim(), phone: $('mPhone').value.trim(), paid: paidSel };
-    persist(cur()); closeModal(); renderRaffle();
+    cur().sold[editing] = { name: $('mName').value.trim(), phone: $('mPhone').value.trim(), paid: paidSel, method: paidSel ? methodSel : '' };
+    persist(cur()); closeModal(); renderRaffle(); toast(`Número ${editing} guardado`);
   };
   $('mFree').onclick = () => {
     delete cur().sold[editing];
-    persist(cur()); closeModal(); renderRaffle();
+    persist(cur()); closeModal(); renderRaffle(); toast(`Número ${editing} liberado`);
   };
 
   /* ---------- Sesión y sincronización (Firebase) ---------- */
