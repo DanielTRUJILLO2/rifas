@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control de Rifas</title>
+<style>
+  :root {
+    --bg1: #0f0c29; --bg2: #302b63; --bg3: #24243e;
+    --glass: rgba(255,255,255,.07); --glass-b: rgba(255,255,255,.14);
+    --text: #f1f0ff; --muted: #a9a6d0;
+    --free: rgba(255,255,255,.08);
+    --paid: #22d3a0; --pend: #fbbf24; --accent1: #a855f7; --accent2: #ec4899; --danger: #fb5a6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text); padding: 24px;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(circle at 15% 10%, rgba(168,85,247,.35), transparent 40%),
+                radial-gradient(circle at 85% 90%, rgba(236,72,153,.28), transparent 40%),
+                linear-gradient(135deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+    background-attachment: fixed;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  .hidden { display: none !important; }
+  h1, h2, h3 { margin: 0; }
+  .grad { background: linear-gradient(90deg, #c084fc, #f472b6, #fbbf24); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .card { background: var(--glass); border: 1px solid var(--glass-b); backdrop-filter: blur(14px); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .card h2 { font-size: 1.05rem; margin-bottom: 14px; letter-spacing: .3px; }
+  label { display: block; font-size: .8rem; color: var(--muted); margin: 12px 0 5px; text-transform: uppercase; letter-spacing: .8px; }
+  input[type=text], input[type=number], input[type=date], input[type=tel], select {
+    width: 100%; padding: 11px 13px; border-radius: 10px; border: 1px solid var(--glass-b);
+    background: rgba(0,0,0,.25); color: var(--text); font-size: 1rem; font-family: inherit; color-scheme: dark;
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent1); border-color: transparent; }
+  .btn {
+    border: 1px solid var(--glass-b); background: var(--glass); color: var(--text); border-radius: 10px;
+    padding: 9px 14px; cursor: pointer; font-size: .88rem; font-family: inherit; transition: .15s;
+  }
+  .btn:hover { border-color: var(--accent1); transform: translateY(-1px); }
+  .btn.primary { background: linear-gradient(90deg, var(--accent1), var(--accent2)); border: none; font-weight: 700; font-size: 1rem; padding: 12px 18px; }
+  .btn.primary:hover { filter: brightness(1.12); }
+  .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+  .btn.sm { padding: 5px 9px; font-size: .8rem; }
+
+  /* Inicio */
+  .hero { text-align: center; margin: 10px 0 28px; }
+  .hero h1 { font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 800; }
+  .hero p { color: var(--muted); margin: 6px 0 0; }
+  .home { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 800px) { .home { grid-template-columns: 1fr; } body { padding: 12px; } }
+  .rlist { display: grid; gap: 12px; }
+  .ritem { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .ritem .info { flex: 1; min-width: 160px; }
+  .ritem .info b { font-size: 1.1rem; }
+  .ritem .info small { display: block; color: var(--muted); margin-top: 3px; }
+  .mini { height: 6px; background: var(--free); border-radius: 9px; overflow: hidden; margin-top: 8px; }
+  .mini > div { height: 100%; background: linear-gradient(90deg, var(--accent1), var(--accent2)); }
+  .empty { color: var(--muted); text-align: center; padding: 22px 0; }
+
+  /* Rifa */
+  .top { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .top h1 { font-size: clamp(1.5rem, 4vw, 2.3rem); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .chip { background: var(--glass); border: 1px solid var(--glass-b); border-radius: 99px; padding: 4px 12px; font-size: .85rem; color: var(--muted); }
+  .chip b { color: var(--text); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 7px; }
+  .num {
+    aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--glass-b); background: var(--free);
+    color: var(--text); font-size: clamp(.8rem, 2.1vw, 1.25rem); font-weight: 700; cursor: pointer; transition: .12s; font-family: inherit;
+  }
+  .num:hover { transform: scale(1.12); border-color: var(--accent1); box-shadow: 0 0 14px rgba(168,85,247,.6); z-index: 1; position: relative; }
+  .num.paid { background: linear-gradient(135deg, #10b981, #22d3a0); color: #052e22; border: none; }
+  .num.pend { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #3b2a02; border: none; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; font-size: .85rem; color: var(--muted); }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; background: var(--free); border: 1px solid var(--glass-b); }
+  .dot.paid { background: var(--paid); border: none; } .dot.pend { background: var(--pend); border: none; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat { background: rgba(0,0,0,.22); border-radius: 12px; padding: 12px 6px; text-align: center; }
+  .stat b { display: block; font-size: 1.6rem; }
+  .stat span { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .bar { height: 16px; background: rgba(0,0,0,.3); border-radius: 99px; overflow: hidden; margin: 16px 0 6px; display: flex; }
+  .bar .p { background: var(--paid); transition: width .4s; } .bar .q { background: var(--pend); transition: width .4s; }
+  .money { display: grid; gap: 8px; margin-top: 14px; }
+  .money div { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 12px; border-radius: 10px; background: rgba(0,0,0,.22); }
+  .money div span { color: var(--muted); font-size: .88rem; }
+  .money div b { font-size: 1.15rem; }
+  .money .g b { color: var(--paid); } .money .y b { color: var(--pend); }
+  .freeList { font-size: .82rem; color: var(--muted); margin-top: 12px; word-break: break-word; }
+
+  .tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tools input, .tools select { width: auto; flex: 1; min-width: 150px; }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th { text-align: left; color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .8px; padding: 8px; }
+  td { padding: 9px 8px; border-top: 1px solid var(--glass-b); vertical-align: middle; }
+  td .tag { display: inline-block; min-width: 38px; text-align: center; font-weight: 800; padding: 3px 8px; border-radius: 8px; background: linear-gradient(135deg, var(--accent1), var(--accent2)); }
+  td a { color: #93c5fd; text-decoration: none; }
+  .st { border: none; border-radius: 99px; padding: 4px 12px; font-weight: 700; font-size: .8rem; cursor: pointer; font-family: inherit; }
+  .st.paid { background: rgba(34,211,160,.2); color: var(--paid); } .st.pend { background: rgba(251,191,36,.2); color: var(--pend); }
+  .winner { margin-top: 20px; }
+  .winrow { display: flex; gap: 10px; }
+  .winrow input { max-width: 120px; text-align: center; font-weight: 800; font-size: 1.2rem; }
+  #winResult { margin-top: 12px; padding: 12px; border-radius: 12px; background: rgba(0,0,0,.22); min-height: 20px; }
+
+  /* Modal */
+  .overlay { position: fixed; inset: 0; background: rgba(5,3,20,.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+  .modal { width: 100%; max-width: 400px; background: #1b1744; border: 1px solid var(--glass-b); border-radius: 20px; padding: 22px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .modal .big { font-size: 3rem; font-weight: 900; line-height: 1; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .seg button { padding: 11px; border-radius: 10px; border: 1px solid var(--glass-b); background: var(--free); color: var(--text); cursor: pointer; font-weight: 700; font-family: inherit; }
+  .seg button.on.paid { background: var(--paid); color: #052e22; border-color: transparent; }
+  .seg button.on.pend { background: var(--pend); color: #3b2a02; border-color: transparent; }
+  .macts { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .macts .primary { flex: 1; }
+</style>
+</head>
+<body>
+<div class="wrap" id="login">
+  <div class="hero">
+    <h1 class="grad">🎟️ Control de Rifas</h1>
+    <p>Inicia sesión para ver tus rifas.</p>
+  </div>
+  <form class="card" id="loginForm" style="max-width:380px; margin:0 auto">
+    <label for="lEmail" style="margin-top:0">Correo</label>
+    <input type="text" id="lEmail" autocomplete="username" required>
+    <label for="lPass">Contraseña</label>
+    <input type="password" id="lPass" autocomplete="current-password" required
+      style="width:100%; padding:11px 13px; border-radius:10px; border:1px solid var(--glass-b); background:rgba(0,0,0,.25); color:var(--text); font-size:1rem">
+    <div style="margin-top:20px"><button class="btn primary" style="width:100%">Entrar</button></div>
+  </form>
+  <p id="loginMsg" style="text-align:center; color:var(--muted)"></p>
+</div>
+
+<div class="wrap hidden" id="app">
+
+  <!-- ============ INICIO / CREAR RIFA ============ -->
+  <div id="home">
+    <div class="hero">
+      <h1 class="grad">🎟️ Control de Rifas</h1>
+      <p>Crea tu rifa, vende números y lleva todo el control en un solo lugar.</p>
+      <button class="btn sm" id="logout" style="margin-top:10px">Cerrar sesión</button>
+    </div>
+    <div class="home">
+      <form class="card" id="createForm">
+        <h2>✨ Crear nueva rifa</h2>
+        <label for="fName">Nombre de la rifa</label>
+        <input type="text" id="fName" placeholder="Ej: Rifa pro-fondos" required>
+        <label for="fPrice">Precio por número</label>
+        <input type="number" id="fPrice" min="0" step="any" placeholder="Ej: 5000" required>
+        <label for="fDate">Fecha del sorteo</label>
+        <input type="date" id="fDate" required>
+        <div style="margin-top:20px"><button class="btn primary" style="width:100%">Crear y abrir rifa →</button></div>
+      </form>
+      <div>
+        <h2 style="margin-bottom:14px">Mis rifas</h2>
+        <div class="rlist" id="rlist"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DETALLE DE RIFA ============ -->
+  <div id="raffle" class="hidden">
+    <div class="top">
+      <div>
+        <h1 class="grad" id="rTitle"></h1>
+        <div class="chips">
+          <span class="chip">📅 <b id="rDate"></b></span>
+          <span class="chip">⏳ <b id="rCount"></b></span>
+          <span class="chip">💵 Precio: <b id="rPrice"></b></span>
+        </div>
+      </div>
+      <button class="btn" id="back">← Todas las rifas</button>
+    </div>
+
+    <div class="layout">
+      <section class="card">
+        <h2>Números del 00 al 99 — toca uno para registrar al comprador</h2>
+        <div class="grid" id="grid"></div>
+        <div class="legend">
+          <span><i class="dot"></i>Disponible</span>
+          <span><i class="dot pend"></i>Pago pendiente</span>
+          <span><i class="dot paid"></i>Pagado</span>
+        </div>
+      </section>
+
+      <aside class="card">
+        <h2>📊 Resumen</h2>
+        <div class="stats">
+          <div class="stat"><b id="sSold">0</b><span>Vendidos</span></div>
+          <div class="stat"><b id="sAvail">100</b><span>Disponibles</span></div>
+          <div class="stat"><b id="sPct">0%</b><span>Vendido</span></div>
+          <div class="stat"><b id="sPaid" style="color:var(--paid)">0</b><span>Pagados</span></div>
+          <div class="stat"><b id="sPend" style="color:var(--pend)">0</b><span>Pendientes</span></div>
+          <div class="stat"><b id="sTotal">0</b><span>Meta (100)</span></div>
+        </div>
+        <div class="bar"><div class="p" id="bPaid"></div><div class="q" id="bPend"></div></div>
+        <div class="money">
+          <div class="g"><span>💰 Recaudado (pagado)</span><b id="mPaid">0</b></div>
+          <div class="y"><span>🕐 Por cobrar (pendiente)</span><b id="mPend">0</b></div>
+          <div><span>🎯 Falta por vender</span><b id="mLeft">0</b></div>
+        </div>
+        <div class="freeList" id="freeList"></div>
+      </aside>
+    </div>
+
+    <section class="card" style="margin-top:20px">
+      <h2>👥 Registro de compradores</h2>
+      <div class="tools">
+        <input type="text" id="search" placeholder="Buscar por nombre, celular o número…">
+        <select id="filter">
+          <option value="all">Todos</option>
+          <option value="paid">Solo pagados</option>
+          <option value="pend">Solo pendientes</option>
+        </select>
+        <button class="btn" id="csv">⬇ Exportar CSV</button>
+        <button class="btn" id="copy">📋 Copiar</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Nº</th><th>Nombre</th><th>Celular</th><th>Pago</th><th>Valor</th><th></th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="empty hidden" id="tEmpty"></div>
+    </section>
+
+    <section class="card winner">
+      <h2>🏆 ¿Quién ganó?</h2>
+      <div class="winrow">
+        <input type="text" id="winNum" maxlength="2" placeholder="00" inputmode="numeric">
+        <button class="btn primary" id="winBtn" style="padding:9px 18px">Buscar ganador</button>
+      </div>
+      <div id="winResult">Escribe el número ganador para ver los datos de contacto.</div>
+    </section>
+
+    <div style="text-align:right; margin-top:16px">
+      <button class="btn danger sm" id="delRaffle">Eliminar esta rifa</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL COMPRADOR ============ -->
+<div class="overlay hidden" id="overlay">
+  <form class="modal" id="mForm">
+    <div style="display:flex; justify-content:space-between; align-items:center">
+      <div><small style="color:var(--muted)">NÚMERO</small><div class="big grad" id="mNum">00</div></div>
+      <button type="button" class="btn sm" id="mClose">✕</button>
+    </div>
+    <label for="mName">Nombre del comprador</label>
+    <input type="text" id="mName" placeholder="Nombre completo" required>
+    <label for="mPhone">Número de celular</label>
+    <input type="tel" id="mPhone" placeholder="Ej: 3001234567">
+    <label>Estado del pago</label>
+    <div class="seg">
+      <button type="button" data-v="pend" class="pend">🕐 Pendiente</button>
+      <button type="button" data-v="paid" class="paid">✅ Pagado</button>
+    </div>
+    <div class="macts">
+      <button class="btn primary">Guardar</button>
+      <button type="button" class="btn danger" id="mFree">Liberar número</button>
+    </div>
+  </form>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+  import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, deleteDoc, onSnapshot }
+    from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+  // === PEGA AQUÍ LA CONFIGURACIÓN DE TU PROYECTO FIREBASE ===
+  const firebaseConfig = {
+    apiKey: 'AIzaSyBeWBQjBb5v_cLtjOipalcUOjYJVmSFdQo',
+    authDomain: 'control-rifas-57f07.firebaseapp.com',
+    projectId: 'control-rifas-57f07',
+    appId: '1:229527779102:web:8bbfa2796baaaf3502fb0f'
+  };
+  // ==========================================================
+
+  const KEY = 'rifas-actual';
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, '0');
+  const money = n => '$' + Math.round(n).toLocaleString('es');
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+  // Los datos viven en Firestore; en este navegador solo se recuerda qué rifa estaba abierta.
+  let state = { raffles: [], current: localStorage.getItem(KEY) || null };
+  const save = () => localStorage.setItem(KEY, state.current || '');
+  const cur = () => state.raffles.find(r => r.id === state.current);
+
+  const configured = !Object.values(firebaseConfig).includes('PEGA_AQUI');
+  let auth, db, uid = null, unsub = null;
+  const rafflesCol = () => collection(db, 'users', uid, 'raffles');
+  const persist = r => setDoc(doc(rafflesCol(), r.id), r).catch(err => { console.error(err); alert('No se pudo guardar: ' + err.message); });
+
+  const fmtDate = iso => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  };
+  const daysLeft = iso => {
+    const [y, m, d] = iso.split('-').map(Number);
+    const t = new Date(); t.setHours(0, 0, 0, 0);
+    return Math.round((new Date(y, m - 1, d) - t) / 86400000);
+  };
+  const countText = iso => {
+    const n = daysLeft(iso);
+    return n > 1 ? `Faltan ${n} días` : n === 1 ? 'Es mañana' : n === 0 ? '¡Es hoy!' : 'Sorteo realizado';
+  };
+
+  function el(tag, props = {}, ...kids) {
+    const e = Object.assign(document.createElement(tag), props);
+    e.append(...kids);
+    return e;
+  }
+
+  /* ---------- Navegación ---------- */
+  function show(keepScroll) {
+    const r = cur();
+    $('home').classList.toggle('hidden', !!r);
+    $('raffle').classList.toggle('hidden', !r);
+    r ? renderRaffle() : renderHome();
+    if (!keepScroll) window.scrollTo(0, 0);
+  }
+  function open(id) { state.current = id; save(); show(); }
+
+  /* ---------- Inicio ---------- */
+  function renderHome() {
+    const box = $('rlist');
+    box.innerHTML = '';
+    if (!state.raffles.length) { box.append(el('div', { className: 'card empty', textContent: 'Aún no has creado ninguna rifa.' })); return; }
+    state.raffles.forEach(r => {
+      const sold = Object.keys(r.sold).length;
+      const info = el('div', { className: 'info' },
+        el('b', { textContent: r.name }),
+        el('small', { textContent: `${fmtDate(r.date)} · ${money(r.price)} por número` }),
+        el('small', { textContent: `${sold}/100 vendidos · ${countText(r.date)}` }));
+      const mini = el('div', { className: 'mini' }, el('div', { style: `width:${sold}%` }));
+      info.append(mini);
+      const b = el('button', { className: 'btn primary', textContent: 'Abrir', onclick: () => open(r.id) });
+      b.style.padding = '9px 16px';
+      box.append(el('div', { className: 'card ritem' }, info, b));
+    });
+  }
+
+  $('createForm').onsubmit = e => {
+    e.preventDefault();
+    const r = { id: uid(), name: $('fName').value.trim(), price: parseFloat($('fPrice').value) || 0, date: $('fDate').value, sold: {}, createdAt: Date.now() };
+    state.raffles.unshift(r);
+    persist(r);
+    e.target.reset();
+    open(r.id);
+  };
+  $('back').onclick = () => { state.current = null; save(); show(); };
+  $('delRaffle').onclick = () => {
+    const r = cur();
+    if (confirm(`¿Eliminar la rifa "${r.name}" y todos sus datos? Esto no se puede deshacer.`)) {
+      state.raffles = state.raffles.filter(x => x.id !== r.id);
+      deleteDoc(doc(rafflesCol(), r.id)).catch(console.error);
+      state.current = null; save(); show();
+    }
+  };
+
+  /* ---------- Rifa ---------- */
+  const grid = $('grid');
+  for (let i = 0; i < 100; i++) {
+    grid.append(el('button', { className: 'num', textContent: pad(i), onclick: () => openModal(pad(i)) }));
+  }
+
+  function renderRaffle() {
+    const r = cur();
+    document.title = r.name;
+    $('rTitle').textContent = r.name;
+    $('rDate').textContent = fmtDate(r.date);
+    $('rCount').textContent = countText(r.date);
+    $('rPrice').textContent = money(r.price) + ' c/u';
+
+    const nums = Object.keys(r.sold).sort();
+    const paid = nums.filter(n => r.sold[n].paid).length;
+    const pend = nums.length - paid;
+    const sold = nums.length;
+
+    [...grid.children].forEach(b => {
+      const s = r.sold[b.textContent];
+      b.className = 'num' + (s ? (s.paid ? ' paid' : ' pend') : '');
+      b.title = s ? `${s.name}${s.phone ? ' · ' + s.phone : ''}` : 'Disponible';
+    });
+
+    $('sSold').textContent = sold;
+    $('sAvail').textContent = 100 - sold;
+    $('sPct').textContent = sold + '%';
+    $('sPaid').textContent = paid;
+    $('sPend').textContent = pend;
+    $('sTotal').textContent = money(r.price * 100);
+    $('bPaid').style.width = paid + '%';
+    $('bPend').style.width = pend + '%';
+    $('mPaid').textContent = money(paid * r.price);
+    $('mPend').textContent = money(pend * r.price);
+    $('mLeft').textContent = money((100 - sold) * r.price);
+    const free = [...Array(100).keys()].map(pad).filter(n => !r.sold[n]);
+    $('freeList').textContent = free.length ? 'Disponibles: ' + free.join(', ') : '🎉 ¡Rifa completa!';
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const r = cur();
+    const q = $('search').value.trim().toLowerCase();
+    const f = $('filter').value;
+    const rows = Object.keys(r.sold).sort().filter(n => {
+      const s = r.sold[n];
+      if (f === 'paid' && !s.paid) return false;
+      if (f === 'pend' && s.paid) return false;
+      return !q || n.includes(q) || s.name.toLowerCase().includes(q) || (s.phone || '').includes(q);
+    });
+    const tb = $('tbody');
+    tb.innerHTML = '';
+    rows.forEach(n => {
+      const s = r.sold[n];
+      const digits = (s.phone || '').replace(/\D/g, '');
+      const phone = digits
+        ? el('a', { href: 'https://wa.me/' + digits, target: '_blank', rel: 'noopener', textContent: s.phone, title: 'Abrir WhatsApp' })
+        : el('span', { textContent: '—', style: 'color:var(--muted)' });
+      const st = el('button', {
+        className: 'st ' + (s.paid ? 'paid' : 'pend'), textContent: s.paid ? '✅ Pagado' : '🕐 Pendiente',
+        title: 'Clic para cambiar', onclick: () => { s.paid = !s.paid; persist(r); renderRaffle(); }
+      });
+      tb.append(el('tr', {},
+        el('td', {}, el('span', { className: 'tag', textContent: n })),
+        el('td', { textContent: s.name }),
+        el('td', {}, phone),
+        el('td', {}, st),
+        el('td', { textContent: money(r.price) }),
+        el('td', {}, el('button', { className: 'btn sm', textContent: 'Editar', onclick: () => openModal(n) }))));
+    });
+    const em = $('tEmpty');
+    em.classList.toggle('hidden', rows.length > 0);
+    em.textContent = Object.keys(r.sold).length ? 'Sin resultados para ese filtro.' : 'Todavía no hay compradores. Toca un número para empezar.';
+  }
+  $('search').oninput = renderTable;
+  $('filter').onchange = renderTable;
+
+  function listText() {
+    const r = cur();
+    return [r.name + ' — ' + fmtDate(r.date), ...Object.keys(r.sold).sort().map(n => {
+      const s = r.sold[n];
+      return `${n} | ${s.name} | ${s.phone || 'sin celular'} | ${s.paid ? 'Pagado' : 'Pendiente'}`;
+    })].join('\n');
+  }
+  $('copy').onclick = () => {
+    navigator.clipboard.writeText(listText());
+    $('copy').textContent = '✔ Copiado';
+    setTimeout(() => $('copy').textContent = '📋 Copiar', 1500);
+  };
+  $('csv').onclick = () => {
+    const r = cur();
+    const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+    const lines = ['Numero,Nombre,Celular,Estado,Valor', ...Object.keys(r.sold).sort().map(n => {
+      const s = r.sold[n];
+      return [n, q(s.name), q(s.phone || ''), s.paid ? 'Pagado' : 'Pendiente', r.price].join(',');
+    })];
+    const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' })), download: r.name + '.csv' });
+    a.click(); URL.revokeObjectURL(a.href);
+  };
+
+  /* ---------- Ganador ---------- */
+  function findWinner() {
+    const r = cur(), n = pad($('winNum').value.replace(/\D/g, '') || '');
+    const out = $('winResult');
+    out.innerHTML = '';
+    if (!$('winNum').value.trim()) { out.textContent = 'Escribe el número ganador.'; return; }
+    const s = r.sold[n];
+    if (!s) { out.textContent = `El número ${n} no fue vendido (quedó disponible).`; return; }
+    out.append(el('div', { innerHTML: '' }),
+      el('b', { textContent: `🎉 Número ${n}: ${s.name}`, style: 'font-size:1.15rem' }),
+      el('div', { textContent: `Estado: ${s.paid ? 'Pagado ✅' : 'Pago pendiente 🕐'}`, style: 'margin-top:6px' }));
+    const digits = (s.phone || '').replace(/\D/g, '');
+    out.append(digits
+      ? el('div', { style: 'margin-top:6px' }, 'Celular: ', el('a', { href: 'https://wa.me/' + digits, target: '_blank', rel: 'noopener', textContent: s.phone, style: 'color:#93c5fd' }))
+      : el('div', { textContent: 'Sin celular registrado.', style: 'margin-top:6px' }));
+  }
+  $('winBtn').onclick = findWinner;
+  $('winNum').onkeydown = e => { if (e.key === 'Enter') findWinner(); };
+
+  /* ---------- Modal ---------- */
+  let editing = null, paidSel = false;
+  function setSeg(paid) {
+    paidSel = paid;
+    document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', (b.dataset.v === 'paid') === paid));
+  }
+  document.querySelectorAll('.seg button').forEach(b => b.onclick = () => setSeg(b.dataset.v === 'paid'));
+
+  function openModal(n) {
+    const s = cur().sold[n];
+    editing = n;
+    $('mNum').textContent = n;
+    $('mName').value = s ? s.name : '';
+    $('mPhone').value = s ? s.phone : '';
+    setSeg(s ? s.paid : false);
+    $('mFree').classList.toggle('hidden', !s);
+    $('overlay').classList.remove('hidden');
+    $('mName').focus();
+  }
+  const closeModal = () => $('overlay').classList.add('hidden');
+  $('mClose').onclick = closeModal;
+  $('overlay').onmousedown = e => { if (e.target === $('overlay')) closeModal(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  $('mForm').onsubmit = e => {
+    e.preventDefault();
+    cur().sold[editing] = { name: $('mName').value.trim(), phone: $('mPhone').value.trim(), paid: paidSel };
+    persist(cur()); closeModal(); renderRaffle();
+  };
+  $('mFree').onclick = () => {
+    delete cur().sold[editing];
+    persist(cur()); closeModal(); renderRaffle();
+  };
+
+  /* ---------- Sesión y sincronización (Firebase) ---------- */
+  const showLogin = (msg) => {
+    $('app').classList.add('hidden');
+    $('login').classList.remove('hidden');
+    $('loginMsg').textContent = msg || '';
+  };
+
+  if (!configured) {
+    showLogin('Falta pegar la configuración de Firebase dentro de rifa.html (busca "PEGA AQUÍ").');
+    $('loginForm').classList.add('hidden');
+  } else {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+
+    onAuthStateChanged(auth, user => {
+      if (unsub) { unsub(); unsub = null; }
+      if (!user) { uid = null; state.raffles = []; showLogin(); return; }
+      uid = user.uid;
+      $('login').classList.add('hidden');
+      $('app').classList.remove('hidden');
+      unsub = onSnapshot(rafflesCol(), snap => {
+        state.raffles = snap.docs.map(d => d.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        if (state.current && !cur()) { state.current = null; save(); }
+        show(true);
+      }, err => { console.error(err); alert('Error al leer los datos: ' + err.message); });
+    });
+
+    $('loginForm').onsubmit = async e => {
+      e.preventDefault();
+      $('loginMsg').textContent = 'Entrando…';
+      try { await signInWithEmailAndPassword(auth, $('lEmail').value.trim(), $('lPass').value); }
+      catch (err) { $('loginMsg').textContent = 'Correo o contraseña incorrectos.'; }
+    };
+    $('logout').onclick = () => signOut(auth);
+  }
+</script>
+</body>
+</html>
