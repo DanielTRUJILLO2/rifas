@@ -374,6 +374,11 @@
         <button class="btn primary" id="shareBtn">Compartir imagen</button>
         <button class="btn" id="dlBtn">Descargar</button>
       </div>
+      <div class="share-actions">
+        <button class="btn sm" id="bannerBtn">Subir mi diseño (encabezado)</button>
+        <button class="btn sm danger hidden" id="bannerClear">Quitar</button>
+      </div>
+      <input type="file" id="bannerFile" accept="image/*" class="hidden">
     </section>
 
     <div style="text-align:right; margin-top:16px">
@@ -410,6 +415,21 @@
       <button type="button" class="btn danger" id="mFree">Liberar número</button>
     </div>
   </form>
+</div>
+
+<!-- ============ MODAL ENCABEZADO ============ -->
+<div class="overlay hidden" id="cropOverlay">
+  <div class="modal">
+    <h2 style="font-family:var(--serif); margin-bottom:6px">Encabezado de la imagen</h2>
+    <p style="color:var(--muted); font-size:.85rem; margin:0 0 12px">Sube tu diseño completo y marca hasta dónde llega la parte de arriba (premio, precio, etc.). La tabla de números la dibuja la página.</p>
+    <canvas id="cropCanvas" style="width:100%; border-radius:10px; display:block"></canvas>
+    <label for="cropRange">Altura del encabezado</label>
+    <input type="range" id="cropRange" min="15" max="85" value="40" style="width:100%; min-height:32px; accent-color:var(--gold)">
+    <div class="macts">
+      <button type="button" class="btn primary" id="cropSave">Usar este encabezado</button>
+      <button type="button" class="btn" id="cropCancel">Cancelar</button>
+    </div>
+  </div>
 </div>
 
 <div id="toast" role="status"></div>
@@ -566,6 +586,8 @@
     const free = [...Array(100).keys()].map(pad).filter(n => !r.sold[n]);
     $('freeList').textContent = free.length ? 'Disponibles: ' + free.join(', ') : '¡Rifa completa!';
 
+    $('bannerClear').classList.toggle('hidden', !r.banner);
+    $('bannerBtn').textContent = r.banner ? 'Cambiar mi diseño (encabezado)' : 'Subir mi diseño (encabezado)';
     drawShare(r);
     renderTable();
   }
@@ -642,47 +664,92 @@
 
   /* ---------- Imagen para compartir ---------- */
   let shareBlob = null;
+  const bannerCache = {};
+  function bannerImage(r) {
+    let b = bannerCache[r.id];
+    if (!b || b.src !== r.banner) {
+      const img = new Image();
+      b = bannerCache[r.id] = { src: r.banner, img, ready: false };
+      img.onload = () => { b.ready = true; const cr = cur(); if (cr && cr.id === r.id) drawShare(cr); };
+      img.src = r.banner;
+    }
+    return b.ready ? b.img : null;
+  }
+
   function drawShare(r) {
-    const c = $('shareCanvas'), W = 1080, H = 1400, x = c.getContext('2d');
+    const hasBanner = !!r.banner;
+    const img = hasBanner ? bannerImage(r) : null;
+    if (hasBanner && !img) return; // se vuelve a dibujar cuando cargue el encabezado
+    const c = $('shareCanvas'), x = c.getContext('2d'), W = 1080;
+    const hdr = img ? Math.round(W * img.height / img.width) : 600;
+    const padX = 54, pitchX = (W - padX * 2) / 10, pitchY = 86, rad = 37;
+    const gridTop = hdr + 40, gridEnd = gridTop + pitchY * 10;
+    const H = gridEnd + 190;
     c.width = W; c.height = H;
-    const rr = (px, py, w, h, rad) => { x.beginPath(); x.moveTo(px + rad, py); x.arcTo(px + w, py, px + w, py + h, rad); x.arcTo(px + w, py + h, px, py + h, rad); x.arcTo(px, py + h, px, py, rad); x.arcTo(px, py, px + w, py, rad); x.closePath(); };
-    x.fillStyle = '#fbf7ee'; x.fillRect(0, 0, W, H);
-    x.strokeStyle = '#c9a24b'; x.lineWidth = 6; x.strokeRect(24, 24, W - 48, H - 48);
-    x.lineWidth = 2; x.strokeRect(40, 40, W - 80, H - 80);
-    x.textAlign = 'center';
 
-    let fs = 88;
-    do { x.font = `700 ${fs}px Georgia, "Times New Roman", serif`; fs -= 4; } while (x.measureText(r.name).width > W - 200 && fs > 30);
-    x.fillStyle = '#14204a'; x.fillText(r.name, W / 2, 160);
+    const gold = x.createLinearGradient(0, 0, W, 0);
+    gold.addColorStop(0, '#f3d98b'); gold.addColorStop(.5, '#d4a53c'); gold.addColorStop(1, '#a87a1c');
+    const goldText = '#e4bd5c';
+    const bg = x.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#0d0d0d'); bg.addColorStop(1, '#000');
+    x.fillStyle = bg; x.fillRect(0, 0, W, H);
 
-    x.font = '400 34px Georgia, "Times New Roman", serif'; x.fillStyle = '#5a6385';
-    x.fillText('Sorteo: ' + fmtDate(r.date), W / 2, 225);
-    x.font = '700 40px Georgia, "Times New Roman", serif'; x.fillStyle = '#9a7420';
-    x.fillText('Valor por número: ' + money(r.price), W / 2, 285);
+    const crown = (cx, cy, s) => {
+      x.beginPath();
+      x.moveTo(cx - s, cy + s * .6); x.lineTo(cx - s, cy - s * .3); x.lineTo(cx - s * .5, cy + s * .1); x.lineTo(cx, cy - s * .7);
+      x.lineTo(cx + s * .5, cy + s * .1); x.lineTo(cx + s, cy - s * .3); x.lineTo(cx + s, cy + s * .6); x.closePath();
+      x.fillStyle = gold; x.fill();
+    };
+    const line = (y, from = padX, to = W - padX) => { x.strokeStyle = gold; x.lineWidth = 2; x.beginPath(); x.moveTo(from, y); x.lineTo(to, y); x.stroke(); };
+    const spaced = s => s.split('').join(' ').replace(/ {1}  /g, '   ');
 
-    const cell = 82, gap = 8, size = cell * 10 + gap * 9, sx = (W - size) / 2, sy = 340;
-    x.textBaseline = 'middle';
+    if (img) {
+      x.drawImage(img, 0, 0, W, hdr);
+    } else {
+      x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+      crown(W / 2, 70, 34);
+      x.fillStyle = gold; x.font = '900 220px Impact, "Arial Black", sans-serif'; x.fillText('RIFA', W / 2, 270);
+      let fs = 78;
+      do { x.font = `italic 700 ${fs}px Georgia, "Times New Roman", serif`; fs -= 4; } while (x.measureText(r.name).width > W - 160 && fs > 28);
+      x.fillStyle = goldText; x.fillText(r.name, W / 2, 365);
+      x.fillStyle = '#f2f2f2'; x.font = '600 30px "Segoe UI", Arial, sans-serif';
+      x.fillText(spaced('SORTEO ' + fmtDate(r.date).toUpperCase()), W / 2, 425);
+      line(470);
+      x.textAlign = 'left'; x.fillStyle = goldText; x.font = '600 26px "Segoe UI", Arial, sans-serif';
+      x.fillText('VALOR DEL NÚMERO', 90, 525);
+      x.fillStyle = gold; x.font = '800 70px "Segoe UI", Arial, sans-serif'; x.fillText(money(r.price), 90, 590);
+      x.fillStyle = '#d6d6d6'; x.fillRect(W / 2 + 10, 495, 2, 95);
+      x.textAlign = 'center'; x.fillStyle = gold; x.font = '800 78px "Segoe UI", Arial, sans-serif'; x.fillText('100', W * .74, 560);
+      x.fillStyle = goldText; x.font = '600 26px "Segoe UI", Arial, sans-serif'; x.fillText(spaced('PUESTOS'), W * .74, 595);
+    }
+    line(hdr + 12);
+
+    x.textAlign = 'center'; x.textBaseline = 'middle';
     for (let i = 0; i < 100; i++) {
-      const n = pad(i), cx = sx + (i % 10) * (cell + gap), cy = sy + Math.floor(i / 10) * (cell + gap);
+      const n = pad(i), cx = padX + pitchX * (i % 10) + pitchX / 2, cy = gridTop + pitchY * Math.floor(i / 10) + pitchY / 2;
       const sold = !!r.sold[n];
-      rr(cx, cy, cell, cell, 12);
-      x.fillStyle = sold ? '#ece8dc' : '#ffffff'; x.fill();
-      x.lineWidth = 2; x.strokeStyle = sold ? '#d8d2c2' : '#c9a24b'; x.stroke();
-      x.font = '700 34px Georgia, "Times New Roman", serif';
-      x.fillStyle = sold ? '#b9b3a2' : '#14204a';
-      x.fillText(n, cx + cell / 2, cy + cell / 2 + 2);
+      x.beginPath(); x.arc(cx, cy, rad, 0, Math.PI * 2);
+      x.lineWidth = 3; x.strokeStyle = sold ? '#4b4b4b' : gold; x.stroke();
+      x.font = '500 31px "Segoe UI", Arial, sans-serif';
+      x.fillStyle = sold ? '#666' : goldText;
+      x.fillText(n, cx, cy + 2);
       if (sold) {
-        x.strokeStyle = '#d64550'; x.lineWidth = 6; x.lineCap = 'round';
-        x.beginPath(); x.moveTo(cx + 14, cy + 14); x.lineTo(cx + cell - 14, cy + cell - 14);
-        x.moveTo(cx + cell - 14, cy + 14); x.lineTo(cx + 14, cy + cell - 14); x.stroke();
+        const d = rad * .62;
+        x.strokeStyle = '#e5484d'; x.lineWidth = 7; x.lineCap = 'round';
+        x.beginPath(); x.moveTo(cx - d, cy - d); x.lineTo(cx + d, cy + d); x.moveTo(cx + d, cy - d); x.lineTo(cx - d, cy + d); x.stroke();
       }
     }
+
     x.textBaseline = 'alphabetic';
     const left = 100 - Object.keys(r.sold).length;
-    x.fillStyle = '#14204a'; x.font = '700 44px Georgia, "Times New Roman", serif';
-    x.fillText(left ? `Disponibles: ${left} de 100` : '¡Todos los números vendidos!', W / 2, 1290);
-    x.fillStyle = '#5a6385'; x.font = '400 28px Georgia, "Times New Roman", serif';
-    x.fillText('Los números tachados ya están vendidos', W / 2, 1338);
+    x.fillStyle = '#f2f2f2'; x.font = '600 34px "Segoe UI", Arial, sans-serif';
+    x.fillText(left ? `Disponibles: ${left} de 100` : '¡Todos los números vendidos!', W / 2, gridEnd + 42);
+    x.fillStyle = '#9b9b9b'; x.font = '400 24px "Segoe UI", Arial, sans-serif';
+    x.fillText('Los números tachados ya están vendidos', W / 2, gridEnd + 80);
+    x.fillStyle = goldText; x.font = '500 26px "Segoe UI", Arial, sans-serif';
+    x.fillText(spaced('GRACIAS POR TU APOYO'), W / 2, gridEnd + 130);
+    line(gridEnd + 152, 100, W / 2 - 40); line(gridEnd + 152, W / 2 + 40, W - 100);
+    crown(W / 2, gridEnd + 152, 16);
     c.toBlob(b => { shareBlob = b; }, 'image/png');
   }
   /* FIN drawShare */
@@ -701,6 +768,46 @@
       $('dlBtn').click();
       toast('Imagen descargada');
     }
+  };
+
+  /* ---------- Encabezado propio ---------- */
+  let cropImg = null;
+  $('bannerBtn').onclick = () => $('bannerFile').click();
+  $('bannerFile').onchange = e => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    const im = new Image();
+    im.onload = () => { cropImg = im; $('cropRange').value = 40; drawCrop(); $('cropOverlay').classList.remove('hidden'); };
+    im.onerror = () => toast('No se pudo leer esa imagen');
+    im.src = URL.createObjectURL(file);
+  };
+  function drawCrop() {
+    const c = $('cropCanvas'), x = c.getContext('2d'), w = 420, h = Math.round(w * cropImg.height / cropImg.width);
+    c.width = w; c.height = h;
+    x.drawImage(cropImg, 0, 0, w, h);
+    const y = Math.round(h * $('cropRange').value / 100);
+    x.fillStyle = 'rgba(0,0,0,.72)'; x.fillRect(0, y, w, h - y);
+    x.strokeStyle = '#f0d48a'; x.lineWidth = 3; x.beginPath(); x.moveTo(0, y); x.lineTo(w, y); x.stroke();
+  }
+  $('cropRange').oninput = drawCrop;
+  $('cropCancel').onclick = () => { $('cropOverlay').classList.add('hidden'); cropImg = null; };
+  $('cropSave').onclick = () => {
+    const sw = cropImg.width, sh = Math.round(cropImg.height * $('cropRange').value / 100);
+    const outW = Math.min(1080, sw), outH = Math.round(sh * outW / sw);
+    const c = el('canvas'); c.width = outW; c.height = outH;
+    c.getContext('2d').drawImage(cropImg, 0, 0, sw, sh, 0, 0, outW, outH);
+    let q = .9, data = c.toDataURL('image/jpeg', q);
+    while (data.length > 600000 && q > .45) { q -= .1; data = c.toDataURL('image/jpeg', q); }
+    if (data.length > 900000) { toast('La imagen es demasiado pesada'); return; }
+    cur().banner = data;
+    persist(cur()); renderRaffle();
+    $('cropOverlay').classList.add('hidden'); cropImg = null;
+    toast('Encabezado guardado');
+  };
+  $('bannerClear').onclick = () => {
+    delete cur().banner;
+    persist(cur()); renderRaffle(); toast('Encabezado quitado');
   };
 
   /* ---------- Ganador ---------- */
