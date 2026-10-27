@@ -76,7 +76,7 @@
   .top { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
   .top h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.15; }
   .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-  .chip { background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 99px; padding: 5px 13px; font-size: .84rem; color: var(--muted); text-transform: capitalize; }
+  .chip { background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 99px; padding: 5px 13px; font-size: .84rem; color: var(--muted); }
   .chip b { color: var(--text); font-weight: 600; }
   .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 22px; align-items: start; }
   .grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 7px; }
@@ -497,7 +497,8 @@
     const r = cur();
     document.title = r.name;
     $('rTitle').textContent = r.name;
-    $('rDate').textContent = fmtDate(r.date);
+    const [dy, dm, dd] = r.date.split('-').map(Number);
+    $('rDate').textContent = new Date(dy, dm - 1, dd).toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
     $('rCount').textContent = countText(r.date);
     $('rPrice').textContent = money(r.price) + ' c/u';
 
