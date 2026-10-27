@@ -161,6 +161,11 @@
            padding: 10px 20px; border-radius: 99px; opacity: 0; pointer-events: none; transition: .25s; z-index: 30; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
   #toast.on { opacity: 1; transform: translate(-50%, 0); }
 
+  #shareCanvas { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; border-radius: 12px; border: 1px solid var(--line-2); box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+  .share-actions { display: flex; gap: 10px; margin-top: 16px; max-width: 520px; margin-left: auto; margin-right: auto; }
+  .share-actions .btn { flex: 1; }
+  .share-actions .btn.primary { width: auto; }
+
   /* Tablet y celular */
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
@@ -361,6 +366,16 @@
       <div id="winResult">Escribe el número ganador para ver los datos de contacto.</div>
     </section>
 
+    <section class="card" style="margin-top:20px">
+      <h2>Imagen para compartir</h2>
+      <p class="sub">Se actualiza sola: los números vendidos aparecen tachados. No incluye nombres ni celulares.</p>
+      <canvas id="shareCanvas" aria-label="Tabla de números disponibles"></canvas>
+      <div class="share-actions">
+        <button class="btn primary" id="shareBtn">Compartir imagen</button>
+        <button class="btn" id="dlBtn">Descargar</button>
+      </div>
+    </section>
+
     <div style="text-align:right; margin-top:16px">
       <button class="btn danger sm" id="delRaffle">Eliminar esta rifa</button>
     </div>
@@ -551,6 +566,7 @@
     const free = [...Array(100).keys()].map(pad).filter(n => !r.sold[n]);
     $('freeList').textContent = free.length ? 'Disponibles: ' + free.join(', ') : '¡Rifa completa!';
 
+    drawShare(r);
     renderTable();
   }
 
@@ -622,6 +638,69 @@
     })];
     const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' })), download: r.name + '.csv' });
     a.click(); URL.revokeObjectURL(a.href);
+  };
+
+  /* ---------- Imagen para compartir ---------- */
+  let shareBlob = null;
+  function drawShare(r) {
+    const c = $('shareCanvas'), W = 1080, H = 1400, x = c.getContext('2d');
+    c.width = W; c.height = H;
+    const rr = (px, py, w, h, rad) => { x.beginPath(); x.moveTo(px + rad, py); x.arcTo(px + w, py, px + w, py + h, rad); x.arcTo(px + w, py + h, px, py + h, rad); x.arcTo(px, py + h, px, py, rad); x.arcTo(px, py, px + w, py, rad); x.closePath(); };
+    x.fillStyle = '#fbf7ee'; x.fillRect(0, 0, W, H);
+    x.strokeStyle = '#c9a24b'; x.lineWidth = 6; x.strokeRect(24, 24, W - 48, H - 48);
+    x.lineWidth = 2; x.strokeRect(40, 40, W - 80, H - 80);
+    x.textAlign = 'center';
+
+    let fs = 88;
+    do { x.font = `700 ${fs}px Georgia, "Times New Roman", serif`; fs -= 4; } while (x.measureText(r.name).width > W - 200 && fs > 30);
+    x.fillStyle = '#14204a'; x.fillText(r.name, W / 2, 160);
+
+    x.font = '400 34px Georgia, "Times New Roman", serif'; x.fillStyle = '#5a6385';
+    x.fillText('Sorteo: ' + fmtDate(r.date), W / 2, 225);
+    x.font = '700 40px Georgia, "Times New Roman", serif'; x.fillStyle = '#9a7420';
+    x.fillText('Valor por número: ' + money(r.price), W / 2, 285);
+
+    const cell = 82, gap = 8, size = cell * 10 + gap * 9, sx = (W - size) / 2, sy = 340;
+    x.textBaseline = 'middle';
+    for (let i = 0; i < 100; i++) {
+      const n = pad(i), cx = sx + (i % 10) * (cell + gap), cy = sy + Math.floor(i / 10) * (cell + gap);
+      const sold = !!r.sold[n];
+      rr(cx, cy, cell, cell, 12);
+      x.fillStyle = sold ? '#ece8dc' : '#ffffff'; x.fill();
+      x.lineWidth = 2; x.strokeStyle = sold ? '#d8d2c2' : '#c9a24b'; x.stroke();
+      x.font = '700 34px Georgia, "Times New Roman", serif';
+      x.fillStyle = sold ? '#b9b3a2' : '#14204a';
+      x.fillText(n, cx + cell / 2, cy + cell / 2 + 2);
+      if (sold) {
+        x.strokeStyle = '#d64550'; x.lineWidth = 6; x.lineCap = 'round';
+        x.beginPath(); x.moveTo(cx + 14, cy + 14); x.lineTo(cx + cell - 14, cy + cell - 14);
+        x.moveTo(cx + cell - 14, cy + 14); x.lineTo(cx + 14, cy + cell - 14); x.stroke();
+      }
+    }
+    x.textBaseline = 'alphabetic';
+    const left = 100 - Object.keys(r.sold).length;
+    x.fillStyle = '#14204a'; x.font = '700 44px Georgia, "Times New Roman", serif';
+    x.fillText(left ? `Disponibles: ${left} de 100` : '¡Todos los números vendidos!', W / 2, 1290);
+    x.fillStyle = '#5a6385'; x.font = '400 28px Georgia, "Times New Roman", serif';
+    x.fillText('Los números tachados ya están vendidos', W / 2, 1338);
+    c.toBlob(b => { shareBlob = b; }, 'image/png');
+  }
+  /* FIN drawShare */
+
+  const shareName = () => (cur().name || 'rifa').replace(/[^\w\-áéíóúñÁÉÍÓÚÑ ]+/g, '').trim().replace(/\s+/g, '-') + '.png';
+  $('dlBtn').onclick = () => {
+    const a = el('a', { href: $('shareCanvas').toDataURL('image/png'), download: shareName() });
+    a.click();
+  };
+  $('shareBtn').onclick = async () => {
+    if (!shareBlob) return;
+    const file = new File([shareBlob], shareName(), { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: cur().name }); } catch (e) { /* cancelado */ }
+    } else {
+      $('dlBtn').click();
+      toast('Imagen descargada');
+    }
   };
 
   /* ---------- Ganador ---------- */
