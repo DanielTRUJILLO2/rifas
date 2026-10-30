@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#08060f">
+<meta name="theme-color" content="#090e1c">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -564,6 +566,104 @@
   @media (prefers-reduced-motion: reduce) {
     .num, .btn.primary::after, .bar .p, .bar .q, .boot-chip { animation: none !important; }
   }
+
+  /* ===================================================================
+     TEMA RIFA FORMAL (sobrescribe el tema casino): azul noche, vino y dorado
+     =================================================================== */
+  :root {
+    --bg: #090e1c; --bg2: #0c1428;
+    --panel: #0f1830; --panel-2: #142040;
+    --line: rgba(236,210,146,.12); --line-2: rgba(236,210,146,.26);
+    --text: #f3efe6; --muted: #9aa5c0;
+    --gold: #c9a45c; --gold-2: #ecd292;
+    --neon: #c2294f; --violet: #3b5bdb;
+    --serif: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: radial-gradient(1000px 600px at 50% -15%, #1a2c5c 0%, transparent 62%),
+                     radial-gradient(800px 560px at 100% 100%, #4a1226 0%, transparent 60%),
+                     linear-gradient(180deg, #090e1c, #0a1122 60%, #070b16); background-attachment: fixed; }
+  h1, h2, .brand { font-weight: 600; letter-spacing: 0; }
+
+  /* Fondo: rayos dorados finos (abanico de sorteo) + boletos flotando */
+  .cz-glow.g1 { background: rgba(59,91,219,.38); }
+  .cz-glow.g2 { background: rgba(194,41,79,.30); }
+  .cz-wheel { opacity: .22; background: repeating-conic-gradient(rgba(236,210,146,.55) 0 .7deg, transparent .7deg 6deg);
+              -webkit-mask: radial-gradient(circle, transparent 0 18%, #000 19% 70%, transparent 71%); mask: radial-gradient(circle, transparent 0 18%, #000 19% 70%, transparent 71%);
+              box-shadow: none; animation-duration: 120s; }
+  .cz-wheel::after { border: 1px solid rgba(236,210,146,.5); inset: 12%; }
+  body.in-app .cz-wheel { opacity: .1; }
+  .cz-suits-bg span { font-family: var(--serif); font-weight: 600; letter-spacing: 1px; padding: 4px 10px; border: 1px dashed currentColor; border-radius: 8px; }
+  .cz-suits-bg .red { color: #e0587a; text-shadow: none; }
+  .cz-suits-bg .gold { color: var(--gold-2); text-shadow: none; }
+  .cz-suits-bg span { font-size: calc(var(--s) * .55); }
+
+  .boot-chip { border: 3px solid rgba(236,210,146,.2); border-top-color: var(--gold-2); box-shadow: none; border-radius: 50%; }
+
+  /* Tarjetas */
+  .card { border-radius: 16px; background: linear-gradient(180deg, rgba(20,32,64,.88), rgba(11,18,38,.94)); box-shadow: 0 14px 40px rgba(0,0,0,.4); }
+  .card::before, .modal::before, .hud::before, .tabs::before {
+          background: linear-gradient(140deg, rgba(236,210,146,.55), rgba(236,210,146,.08) 40%, rgba(236,210,146,.08) 65%, rgba(194,41,79,.4)); }
+  .card h2::before { content: ""; width: 4px; height: 1.1em; border-radius: 3px; background: linear-gradient(180deg, var(--gold-2), var(--gold)); text-shadow: none; }
+  .card h2 { letter-spacing: 0; font-weight: 600; }
+
+  /* Títulos: dorado liso, sin neón */
+  .hero h1.grad, .rtitle h1.grad, .cz-neon, .modal .big.grad { background: linear-gradient(180deg, #f8e8b8, #c9a45c); -webkit-background-clip: text; background-clip: text;
+          -webkit-text-fill-color: transparent; color: transparent; text-shadow: none; filter: drop-shadow(0 2px 14px rgba(201,164,92,.25)); letter-spacing: .02em; font-weight: 700; }
+  .cz-neon { letter-spacing: .22em; padding-left: .22em; font-weight: 600; }
+  .cz-neon span { animation: none !important; }
+  .cz-sub { color: var(--muted); letter-spacing: 4px; font-size: .74rem; }
+  .cz-jackpot small { color: var(--gold); }
+  .cz-reels { border-radius: 12px; background: linear-gradient(180deg, #101a36, #0a1128); border-color: var(--line-2); box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+  .reel { border-radius: 8px; background: linear-gradient(180deg, #070c1c, #14203f 50%, #070c1c); }
+  .reel span { color: var(--gold-2); text-shadow: none; font-weight: 600; }
+
+  /* Botones */
+  .btn { border-radius: 12px; }
+  .btn:hover { border-color: var(--gold-2); background: rgba(201,164,92,.1); box-shadow: none; }
+  .btn.primary, .cz-btn, .tabs button.on, .fchip.on { background: linear-gradient(180deg, #f1dca0, #c9a45c); box-shadow: 0 6px 18px rgba(201,164,92,.28); }
+  .btn.primary { font-weight: 600; letter-spacing: .2px; }
+  .cz-btn { font-weight: 700; letter-spacing: 3px; border-radius: 12px; }
+  input:focus, select:focus, .cz-field input:focus { border-color: var(--gold-2); box-shadow: 0 0 0 3px rgba(236,210,146,.18); }
+  .cz-card { border-radius: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+  .cz-card::before { background: conic-gradient(from 0deg, transparent 0 60%, #ecd292 78%, #c2294f 92%, transparent 100%); }
+  .cz-card-in { border-radius: 16px; background: linear-gradient(180deg, rgba(18,28,56,.97), rgba(9,14,30,.98)); }
+  .cz-card-in label { color: var(--gold); }
+  .cz-field svg { stroke: #8d9bbd; } .cz-field:focus-within svg { stroke: var(--gold-2); }
+  .cz-field input { background: rgba(5,8,20,.7); }
+  .cz-msg { color: #ff9bb1; }
+  .cz-foot { color: var(--gold-2); opacity: .5; } .cz-foot .r { color: #e0587a; }
+
+  /* Números: boletos */
+  .grid { gap: 7px; }
+  .num { border-radius: 10px; font-weight: 600; color: var(--gold-2); border: 1px solid rgba(236,210,146,.38);
+         background: linear-gradient(180deg, #16244a, #0e1830); box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+         animation: tixIn .4s cubic-bezier(.2,.9,.3,1.15) both; animation-delay: calc(var(--i, 0) * 8ms); }
+  @keyframes tixIn { from { opacity: 0; transform: translateY(10px) scale(.88); } to { opacity: 1; transform: none; } }
+  .num:hover { transform: translateY(-3px); border-color: var(--gold-2); box-shadow: 0 8px 18px rgba(0,0,0,.4), 0 0 0 1px rgba(236,210,146,.4); }
+  .num.paid { color: #05281a; border-color: #8ff0c4; background: linear-gradient(180deg, #4fe3a2, #17a46d); box-shadow: 0 4px 12px rgba(61,220,151,.28), inset 0 1px 0 rgba(255,255,255,.45); }
+  .num.pend { color: #3a2300; border-color: #ffd98f; background: linear-gradient(180deg, #ffc860, #e08a14); box-shadow: 0 4px 12px rgba(255,181,71,.28), inset 0 1px 0 rgba(255,255,255,.45); }
+  .dot { border-radius: 4px; }
+  .dot.paid { background: #17a46d; border-color: #8ff0c4; } .dot.pend { background: #e08a14; border-color: #ffd98f; }
+
+  /* Datos */
+  .hud, .tabs { background: rgba(11,18,38,.92); box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+  .hud-row b, .stat b, .tile b, .hud-row .g b, .hud-row .y b { text-shadow: none; }
+  .stat, .tile, .money div, .mrow, .bcard, .ritem2 { background: rgba(5,9,22,.5); }
+  .bcard:hover, .ritem2:hover { box-shadow: 0 8px 20px rgba(0,0,0,.3); }
+  .bcard .tag, .ritem2 .tag { border-radius: 10px; background: linear-gradient(180deg, #16244a, #0e1830); border: 1px solid rgba(236,210,146,.4); box-shadow: none; }
+  .fchip.on, .tabs button.on { box-shadow: 0 4px 14px rgba(201,164,92,.3); }
+  .mrow.total { box-shadow: none; }
+  .modal { background: linear-gradient(180deg, #14213f, #0b1226); box-shadow: 0 26px 80px rgba(0,0,0,.65); }
+  .overlay { background: rgba(3,6,16,.8); }
+  .seg button.on.paid, .seg button.on.pend { box-shadow: none; }
+  #toast { box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+
+  /* Inicio: boleto de rifa con franja dorada */
+  .ritem { position: relative; padding: 18px 20px 18px 24px; }
+  .ritem::after { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: linear-gradient(180deg, var(--gold-2), var(--gold) 60%, #8c1d3a); }
+  .mini > div { background: linear-gradient(90deg, var(--gold), var(--gold-2)); box-shadow: none; }
+  @media (prefers-reduced-motion: reduce) { .num { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -572,14 +672,14 @@
   <div class="cz-glow g2"></div>
   <div class="cz-wheel"></div>
   <div class="cz-suits-bg">
-    <span style="--x:6%;  --d:0s;   --t:17s; --s:2.4rem" class="red">♥</span>
-    <span style="--x:18%; --d:4s;   --t:21s; --s:1.6rem" class="gold">♠</span>
-    <span style="--x:31%; --d:9s;   --t:19s; --s:2.8rem" class="red">♦</span>
-    <span style="--x:46%; --d:2s;   --t:24s; --s:1.8rem" class="gold">♣</span>
-    <span style="--x:58%; --d:12s;  --t:18s; --s:2.2rem" class="red">♠</span>
-    <span style="--x:71%; --d:6s;   --t:22s; --s:3rem"   class="gold">♥</span>
-    <span style="--x:84%; --d:1s;   --t:20s; --s:1.7rem" class="red">♣</span>
-    <span style="--x:93%; --d:10s;  --t:23s; --s:2.3rem" class="gold">♦</span>
+    <span style="--x:6%;  --d:0s;   --t:17s; --s:2.4rem" class="red">07</span>
+    <span style="--x:18%; --d:4s;   --t:21s; --s:1.6rem" class="gold">23</span>
+    <span style="--x:31%; --d:9s;   --t:19s; --s:2.8rem" class="red">58</span>
+    <span style="--x:46%; --d:2s;   --t:24s; --s:1.8rem" class="gold">12</span>
+    <span style="--x:58%; --d:12s;  --t:18s; --s:2.2rem" class="red">91</span>
+    <span style="--x:71%; --d:6s;   --t:22s; --s:3rem"   class="gold">65</span>
+    <span style="--x:84%; --d:1s;   --t:20s; --s:1.7rem" class="red">34</span>
+    <span style="--x:93%; --d:10s;  --t:23s; --s:2.3rem" class="gold">76</span>
   </div>
 </div>
 <div class="boot" id="boot">
@@ -616,7 +716,7 @@
       </div>
     </form>
     <p id="loginMsg" class="cz-msg"></p>
-    <div class="cz-foot" aria-hidden="true"><i>♠</i><i class="r">♥</i><i class="r">♦</i><i>♣</i></div>
+    <div class="cz-foot" aria-hidden="true"><i>✦</i><i class="r">✦</i><i class="r">✦</i><i>✦</i></div>
   </main>
 </div>
 <script>
