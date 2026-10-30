@@ -129,7 +129,7 @@
   #winResult b { color: var(--gold-2); font-family: var(--serif); }
 
   /* Modal */
-  .overlay { position: fixed; inset: 0; background: rgba(3,5,14,.75); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; animation: fade .2s ease both; }
+  .overlay { position: fixed; inset: 0; background: rgba(3,5,14,.75); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 40; animation: fade .2s ease both; }
   .modal { width: 100%; max-width: 420px; max-height: 92vh; overflow-y: auto; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line-2); border-radius: 20px; padding: 24px; box-shadow: 0 24px 70px rgba(0,0,0,.6); }
   .modal .big { font-family: var(--serif); font-size: 3.2rem; font-weight: 700; line-height: 1; }
   .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -158,7 +158,7 @@
   .money .sep { height: 0; padding: 0; border: none; background: none; margin: 2px 0; }
 
   #toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--gold); color: #1b1402; font-weight: 700;
-           padding: 10px 20px; border-radius: 99px; opacity: 0; pointer-events: none; transition: .25s; z-index: 30; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+           padding: 10px 20px; border-radius: 99px; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
   #toast.on { opacity: 1; transform: translate(-50%, 0); }
 
   #shareCanvas { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; border-radius: 12px; border: 1px solid var(--line-2); box-shadow: 0 10px 28px rgba(0,0,0,.35); }
@@ -225,6 +225,108 @@
     .modal label { margin-top: 12px; }
     @keyframes up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
   }
+
+  /* ===== Pestañas, filtros y paneles (versión organizada) ===== */
+  .rhead { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .rtitle { min-width: 0; flex: 1; }
+  .rtitle h1 { font-size: clamp(1.4rem, 4vw, 2.2rem); line-height: 1.15; overflow-wrap: anywhere; }
+  .rhead .btn { flex: none; margin-top: 2px; }
+  .rtitle .chips { margin-top: 8px; }
+
+  .hud { display: block; }
+
+  .tabs { display: flex; gap: 6px; padding: 5px; margin: 0 0 16px; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+  .tabs button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border: none; border-radius: 12px; background: transparent;
+                 color: var(--muted); font-family: inherit; font-size: .92rem; font-weight: 600; cursor: pointer; transition: .15s; }
+  .tabs button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .tabs button:hover { color: var(--text); }
+  .tabs button.on { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #1b1402; box-shadow: 0 4px 14px rgba(212,175,95,.28); }
+
+  .panel { animation: fade .25s ease both; }
+  .stack { display: grid; gap: 16px; }
+  .layout.even { grid-template-columns: 1fr 1fr; }
+  .note { color: var(--muted); font-size: .8rem; margin: 12px 0 0; }
+
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tile { background: rgba(5,8,20,.45); border: 1px solid var(--line); border-radius: 12px; padding: 12px 8px; text-align: center; }
+  .tile span { display: block; font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .tile b { display: block; font-family: var(--serif); font-size: 1.6rem; font-weight: 600; line-height: 1.15; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+  .tile em { font-style: normal; font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tile.g b, .tile.g em { color: var(--paid); } .tile.y b, .tile.y em { color: var(--pend); }
+
+  .recent { display: grid; gap: 8px; }
+  .ritem2 { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 12px; background: rgba(5,8,20,.4); border: 1px solid var(--line); cursor: pointer; transition: .15s; }
+  .ritem2:hover { border-color: var(--gold); }
+  .rinfo { flex: 1; min-width: 0; }
+  .rinfo b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rinfo small { color: var(--muted); font-size: .78rem; }
+  .pip { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .pip.paid { background: var(--paid); box-shadow: 0 0 8px var(--paid); } .pip.pend { background: var(--pend); box-shadow: 0 0 8px var(--pend); }
+  .recent .empty { padding: 14px 0; }
+
+  .fchips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; margin: 0 -2px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .fchips::-webkit-scrollbar { display: none; }
+  .fchip { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--line-2);
+           background: rgba(255,255,255,.04); color: var(--muted); font-family: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: .15s; }
+  .fchip b { background: rgba(255,255,255,.1); border-radius: 99px; padding: 1px 8px; font-size: .78rem; color: var(--text); font-variant-numeric: tabular-nums; }
+  .fchip:hover { border-color: var(--gold); color: var(--text); }
+  .fchip.on { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #1b1402; border-color: transparent; }
+  .fchip.on b { background: rgba(0,0,0,.18); color: #1b1402; }
+
+  .ftotal { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 14px; }
+  .ftotal .tile b { font-size: 1.8rem; }
+
+  .blist { display: grid; gap: 8px; grid-template-columns: 1fr; }
+  .bcard { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "n nm st" "n ph bd"; gap: 4px 12px; align-items: center; padding: 11px 13px;
+           background: rgba(5,8,20,.4); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: .15s; }
+  .bcard:hover { border-color: var(--gold); }
+  .bcard:active { background: rgba(212,175,95,.1); }
+  .ritem2 .tag { display: inline-block; min-width: 40px; text-align: center; font-family: var(--serif); font-weight: 700; padding: 7px 9px; border-radius: 9px;
+                 background: rgba(212,175,95,.14); border: 1px solid rgba(212,175,95,.4); color: var(--gold-2); }
+  .bcard .tag { grid-area: n; display: inline-block; min-width: 40px; text-align: center; font-family: var(--serif); font-weight: 700; font-size: 1rem; padding: 7px 9px; border-radius: 9px;
+                background: rgba(212,175,95,.14); border: 1px solid rgba(212,175,95,.4); color: var(--gold-2); }
+  .bname { grid-area: nm; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .bph { grid-area: ph; font-size: .85rem; min-width: 0; } .bph a { color: #9ec1ff; text-decoration: none; }
+  .bst { grid-area: st; justify-self: end; }
+  .bd { grid-area: bd; display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+  .badge.nequi { color: #f9a8d4; border-color: rgba(249,168,212,.4); } .badge.nu { color: #c4b5fd; border-color: rgba(196,181,253,.4); }
+  .blist .empty, #tEmpty { padding: 22px 0; }
+
+  .share-actions.wide { max-width: none; }
+  .methods { display: grid; gap: 8px; }
+  .mrow { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 11px 14px; border-radius: 12px; background: rgba(5,8,20,.45); border: 1px solid var(--line); }
+  .mrow span { font-weight: 600; } .mrow b { font-family: var(--serif); font-size: 1.15rem; font-variant-numeric: tabular-nums; text-align: right; }
+  .mrow small { color: var(--muted); font-size: .76rem; grid-column: 1 / -1; }
+  .mrow.sub { margin-left: 16px; padding: 9px 12px; background: rgba(5,8,20,.3); }
+  .mrow.sub span { font-weight: 500; font-size: .92rem; } .mrow.sub b { font-size: 1rem; }
+  .mrow.total { border-color: rgba(212,175,95,.45); } .mrow.total b { color: var(--gold-2); }
+  .mbar { grid-column: 1 / -1; height: 5px; background: rgba(255,255,255,.08); border-radius: 9px; overflow: hidden; margin-top: 4px; }
+  .mbar div { height: 100%; border-radius: 9px; transition: width .4s; background: var(--gold); }
+  .mbar .cash { background: #86efac; } .mbar .trans { background: #93c5fd; } .mbar .nequi { background: #f9a8d4; } .mbar .nu { background: #c4b5fd; } .mbar .none { background: #9aa3c0; }
+
+  #bankBox .seg button.on { background: rgba(196,181,253,.16); color: #ddd6fe; border-color: #c4b5fd; }
+  #bankBox .seg button[data-v="nequi"].on { background: rgba(249,168,212,.16); color: #fbcfe8; border-color: #f9a8d4; }
+
+  @media (min-width: 901px) {
+    .blist { grid-template-columns: 1fr 1fr; }
+    .hud { max-width: 100%; }
+  }
+
+  @media (max-width: 900px) {
+    .layout.even { grid-template-columns: 1fr; }
+    body { padding-bottom: 100px; }
+    .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; margin: 0; border-radius: 20px 20px 0 0; border-bottom: none;
+            padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background: rgba(10,15,32,.95); backdrop-filter: blur(14px); box-shadow: 0 -10px 30px rgba(0,0,0,.45); }
+    .tabs button { flex-direction: column; gap: 3px; min-height: 52px; font-size: .68rem; }
+    #toast { bottom: calc(86px + env(safe-area-inset-bottom)); }
+  }
+  @media (max-width: 600px) {
+    body { padding-bottom: 100px; }
+    .rhead { gap: 10px; margin-bottom: 10px; }
+    .ftotal .tile b, .tile b { font-size: 1.35rem; }
+    .layout.even, .layout { gap: 12px; }
+    .mrow.sub { margin-left: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -278,17 +380,17 @@
 
   <!-- ============ DETALLE DE RIFA ============ -->
   <div id="raffle" class="hidden">
-    <div class="top">
-      <div class="tl">
-        <button class="btn sm" id="back" aria-label="Volver a mis rifas">← Rifas</button>
+    <header class="rhead">
+      <button class="btn sm" id="back" aria-label="Volver a mis rifas">← Rifas</button>
+      <div class="rtitle">
         <h1 class="grad" id="rTitle"></h1>
+        <div class="chips">
+          <span class="chip"><b id="rDate"></b></span>
+          <span class="chip"><b id="rCount"></b></span>
+          <span class="chip">Precio: <b id="rPrice"></b></span>
+        </div>
       </div>
-      <div class="chips">
-        <span class="chip"><b id="rDate"></b></span>
-        <span class="chip"><b id="rCount"></b></span>
-        <span class="chip">Precio: <b id="rPrice"></b></span>
-      </div>
-    </div>
+    </header>
 
     <div class="hud">
       <div class="hud-row">
@@ -300,90 +402,135 @@
       <div class="bar slim"><div class="p" id="hbPaid"></div><div class="q" id="hbPend"></div></div>
     </div>
 
-    <div class="layout">
-      <section class="card grid-card">
-        <h2>Toca un número para registrar al comprador</h2>
-        <div class="grid" id="grid"></div>
-        <div class="legend">
-          <span><i class="dot"></i>Disponible</span>
-          <span><i class="dot pend"></i>Pago pendiente</span>
-          <span><i class="dot paid"></i>Pagado</span>
-        </div>
-      </section>
+    <nav class="tabs" id="tabs" aria-label="Secciones de la rifa">
+      <button class="on" data-tab="board">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Tablero</span>
+      </button>
+      <button data-tab="buyers">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 14.8c1.7.7 3 2.3 3 5.2"/></svg>
+        <span>Compradores</span>
+      </button>
+      <button data-tab="summary">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>
+        <span>Resumen</span>
+      </button>
+      <button data-tab="share">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+        <span>Compartir</span>
+      </button>
+    </nav>
 
-      <aside class="card">
-        <h2>Resumen</h2>
-        <div class="stats">
-          <div class="stat"><b id="sSold">0</b><span>Vendidos</span></div>
-          <div class="stat"><b id="sAvail">100</b><span>Disponibles</span></div>
-          <div class="stat"><b id="sPct">0%</b><span>Vendido</span></div>
-          <div class="stat"><b id="sPaid" style="color:var(--paid)">0</b><span>Pagados</span></div>
-          <div class="stat"><b id="sPend" style="color:var(--pend)">0</b><span>Pendientes</span></div>
-          <div class="stat"><b id="sTotal">0</b><span>Meta (100)</span></div>
+    <!-- TABLERO -->
+    <section class="panel" data-panel="board">
+      <div class="layout">
+        <div class="card grid-card">
+          <h2>Toca un número para registrar al comprador</h2>
+          <div class="grid" id="grid"></div>
+          <div class="legend">
+            <span><i class="dot"></i>Disponible</span>
+            <span><i class="dot pend"></i>Pago pendiente</span>
+            <span><i class="dot paid"></i>Pagado</span>
+          </div>
         </div>
-        <div class="bar"><div class="p" id="bPaid"></div><div class="q" id="bPend"></div></div>
-        <div class="money">
-          <div class="g"><span>Recaudado (pagado)</span><b id="mPaid">0</b></div>
-          <div class="y"><span>Por cobrar (pendiente)</span><b id="mPend">0</b></div>
-          <div><span>Falta por vender</span><b id="mLeft">0</b></div>
-          <div class="sep"></div>
-          <div><span id="mCashL">Efectivo</span><b id="mCash">0</b></div>
-          <div><span id="mTransL">Transferencia</span><b id="mTrans">0</b></div>
-        </div>
-        <div class="freeList" id="freeList"></div>
-      </aside>
-    </div>
+        <aside class="stack">
+          <div class="card">
+            <h2>Total vendido</h2>
+            <div class="trio">
+              <div class="tile"><span>Vendidos</span><b id="tSoldN">0</b><em id="tSoldM">$0</em></div>
+              <div class="tile g"><span>Pagados</span><b id="tPaidN">0</b><em id="tPaidM">$0</em></div>
+              <div class="tile y"><span>Pendientes</span><b id="tPendN">0</b><em id="tPendM">$0</em></div>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Últimos números vendidos</h2>
+            <div class="recent" id="recent"></div>
+            <p class="note hidden" id="recentNote"></p>
+          </div>
+        </aside>
+      </div>
+    </section>
 
-    <section class="card" style="margin-top:20px">
-      <h2>Registro de compradores</h2>
-      <div class="tools">
+    <!-- COMPRADORES -->
+    <section class="panel hidden" data-panel="buyers">
+      <div class="card">
+        <h2>Registro de compradores</h2>
+        <div class="fchips" id="fchips" role="tablist" aria-label="Filtrar compradores"></div>
         <input type="text" id="search" placeholder="Buscar por nombre, celular o número…">
-        <select id="filter">
-          <option value="all">Todos</option>
-          <option value="paid">Solo pagados</option>
-          <option value="pend">Solo pendientes</option>
-          <option value="efectivo">Pagó en efectivo</option>
-          <option value="transferencia">Pagó por transferencia</option>
-        </select>
-        <button class="btn" id="csv">Exportar CSV</button>
-        <button class="btn" id="copy">Copiar</button>
+        <div class="ftotal" id="ftotal">
+          <div class="tile"><span id="ftNL">Números</span><b id="ftN">0</b></div>
+          <div class="tile" id="ftMT"><span id="ftML">Valor</span><b id="ftM">$0</b></div>
+        </div>
+        <div class="blist" id="blist"></div>
+        <div class="empty hidden" id="tEmpty"></div>
+        <div class="share-actions wide">
+          <button class="btn" id="csv">Exportar CSV</button>
+          <button class="btn" id="copy">Copiar lista</button>
+        </div>
+        <p class="note">La lista y los totales siguen el filtro y la búsqueda que tengas activos.</p>
       </div>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>Nº</th><th>Nombre</th><th>Celular</th><th>Pago</th><th>Método</th><th>Valor</th><th></th></tr></thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-      <div class="empty hidden" id="tEmpty"></div>
     </section>
 
-    <section class="card winner">
-      <h2>¿Quién ganó?</h2>
-      <div class="winrow">
-        <input type="text" id="winNum" maxlength="2" placeholder="00" inputmode="numeric">
-        <button class="btn primary" id="winBtn" style="padding:9px 18px">Buscar ganador</button>
+    <!-- RESUMEN -->
+    <section class="panel hidden" data-panel="summary">
+      <div class="layout even">
+        <div class="stack">
+          <div class="card">
+            <h2>Avance de la rifa</h2>
+            <div class="stats">
+              <div class="stat"><b id="sSold">0</b><span>Vendidos</span></div>
+              <div class="stat"><b id="sAvail">100</b><span>Disponibles</span></div>
+              <div class="stat"><b id="sPct">0%</b><span>Vendido</span></div>
+              <div class="stat"><b id="sPaid" style="color:var(--paid)">0</b><span>Pagados</span></div>
+              <div class="stat"><b id="sPend" style="color:var(--pend)">0</b><span>Pendientes</span></div>
+              <div class="stat"><b id="sTotal">0</b><span>Meta (100)</span></div>
+            </div>
+            <div class="bar"><div class="p" id="bPaid"></div><div class="q" id="bPend"></div></div>
+            <div class="money">
+              <div class="g"><span>Recaudado (pagado)</span><b id="mPaid">0</b></div>
+              <div class="y"><span>Por cobrar (pendiente)</span><b id="mPend">0</b></div>
+              <div><span>Falta por vender</span><b id="mLeft">0</b></div>
+            </div>
+            <div class="freeList" id="freeList"></div>
+          </div>
+          <div class="card winner">
+            <h2>¿Quién ganó?</h2>
+            <div class="winrow">
+              <input type="text" id="winNum" maxlength="2" placeholder="00" inputmode="numeric">
+              <button class="btn primary" id="winBtn">Buscar ganador</button>
+            </div>
+            <div id="winResult">Escribe el número ganador para ver los datos de contacto.</div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h2>Dinero recaudado por método</h2>
+            <div class="methods" id="methods"></div>
+          </div>
+          <div style="text-align:right">
+            <button class="btn danger sm" id="delRaffle">Eliminar esta rifa</button>
+          </div>
+        </div>
       </div>
-      <div id="winResult">Escribe el número ganador para ver los datos de contacto.</div>
     </section>
 
-    <section class="card" style="margin-top:20px">
-      <h2>Imagen para compartir</h2>
-      <p class="sub">Se actualiza sola: los números vendidos aparecen tachados. No incluye nombres ni celulares.</p>
-      <canvas id="shareCanvas" aria-label="Tabla de números disponibles"></canvas>
-      <div class="share-actions">
-        <button class="btn primary" id="shareBtn">Compartir imagen</button>
-        <button class="btn" id="dlBtn">Descargar</button>
+    <!-- COMPARTIR -->
+    <section class="panel hidden" data-panel="share">
+      <div class="card">
+        <h2>Imagen para compartir</h2>
+        <p class="sub">Se actualiza sola: los números vendidos aparecen tachados. No incluye nombres ni celulares.</p>
+        <canvas id="shareCanvas" aria-label="Tabla de números disponibles"></canvas>
+        <div class="share-actions">
+          <button class="btn primary" id="shareBtn">Compartir imagen</button>
+          <button class="btn" id="dlBtn">Descargar</button>
+        </div>
+        <div class="share-actions">
+          <button class="btn sm" id="bannerBtn">Subir mi diseño (encabezado)</button>
+          <button class="btn sm danger hidden" id="bannerClear">Quitar</button>
+        </div>
+        <input type="file" id="bannerFile" accept="image/*" class="hidden">
       </div>
-      <div class="share-actions">
-        <button class="btn sm" id="bannerBtn">Subir mi diseño (encabezado)</button>
-        <button class="btn sm danger hidden" id="bannerClear">Quitar</button>
-      </div>
-      <input type="file" id="bannerFile" accept="image/*" class="hidden">
     </section>
-
-    <div style="text-align:right; margin-top:16px">
-      <button class="btn danger sm" id="delRaffle">Eliminar esta rifa</button>
-    </div>
   </div>
 </div>
 
@@ -408,6 +555,13 @@
       <div class="seg" id="segMethod">
         <button type="button" data-v="efectivo" class="paid">Efectivo</button>
         <button type="button" data-v="transferencia" class="paid">Transferencia</button>
+      </div>
+    </div>
+    <div id="bankBox" class="hidden">
+      <label>Cuenta que recibió la transferencia</label>
+      <div class="seg" id="segBank">
+        <button type="button" data-v="nequi">Nequi</button>
+        <button type="button" data-v="nu">Nu</button>
       </div>
     </div>
     <div class="macts">
@@ -540,6 +694,67 @@
     grid.append(el('button', { className: 'num', textContent: pad(i), onclick: () => openModal(pad(i)) }));
   }
 
+  const BANKS = { nequi: 'Nequi', nu: 'Nu' };
+  const isTrans = s => s.paid && s.method === 'transferencia';
+  // Cada filtro: cómo se reconoce un comprador, cómo se llama el total y si la pestaña es opcional (solo aparece si hay casos).
+  const FILTERS = [
+    { k: 'all',    l: 'Todos',            t: 'Valor de lo vendido',        f: () => true },
+    { k: 'paid',   l: 'Pagados',          t: 'Total recaudado',            f: s => s.paid },
+    { k: 'pend',   l: 'Pendientes',       t: 'Por cobrar',                 f: s => !s.paid },
+    { k: 'cash',   l: 'Efectivo',         t: 'Total en efectivo',          f: s => s.paid && s.method === 'efectivo' },
+    { k: 'trans',  l: 'Transferencia',    t: 'Total por transferencia',    f: isTrans },
+    { k: 'nequi',  l: 'Nequi',            t: 'Total recibido en Nequi',    f: s => isTrans(s) && s.bank === 'nequi' },
+    { k: 'nu',     l: 'Nu',               t: 'Total recibido en Nu',       f: s => isTrans(s) && s.bank === 'nu' },
+    { k: 'transnb', l: 'Transf. sin cuenta', t: 'Transferencias sin cuenta indicada', f: s => isTrans(s) && !s.bank, optional: true },
+    { k: 'nometh', l: 'Pagado sin método', t: 'Pagos sin método indicado', f: s => s.paid && !s.method, optional: true },
+  ];
+  let filterKey = 'all', tab = 'board';
+  const curFilter = () => FILTERS.find(f => f.k === filterKey) || FILTERS[0];
+
+  const payLabel = s => !s.paid ? 'Pendiente'
+    : s.method === 'efectivo' ? 'Efectivo'
+    : s.method === 'transferencia' ? (s.bank ? 'Transferencia · ' + BANKS[s.bank] : 'Transferencia')
+    : 'Pagado';
+  const relTime = ts => {
+    const m = Math.round((Date.now() - ts) / 60000);
+    if (m < 1) return 'ahora mismo';
+    if (m < 60) return `hace ${m} min`;
+    if (m < 1440) return `hace ${Math.round(m / 60)} h`;
+    return new Date(ts).toLocaleDateString('es', { day: 'numeric', month: 'short' });
+  };
+
+  /* Pestañas */
+  function setTab(t) {
+    tab = t;
+    document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== t));
+  }
+  $('tabs').onclick = e => {
+    const b = e.target.closest('button');
+    if (b) { setTab(b.dataset.tab); window.scrollTo({ top: 0 }); }
+  };
+
+  /* Filtros (se crean una sola vez para no perder la posición del scroll) */
+  const chipEls = {};
+  FILTERS.forEach(f => {
+    const count = el('b', { textContent: '0' });
+    const b = el('button', { className: 'fchip', onclick: () => { filterKey = f.k; if (cur()) renderBuyers(cur()); } }, f.l, count);
+    chipEls[f.k] = { b, count };
+    $('fchips').append(b);
+  });
+
+  function statsOf(r) {
+    const all = Object.values(r.sold);
+    const n = f => all.filter(f).length;
+    const F = Object.fromEntries(FILTERS.map(x => [x.k, x.f]));
+    const sold = all.length, paid = n(F.paid);
+    return {
+      sold, paid, pend: sold - paid,
+      cash: n(F.cash), trans: n(F.trans), nequi: n(F.nequi), nu: n(F.nu),
+      transnb: n(F.transnb), nometh: n(F.nometh),
+    };
+  }
+
   function renderRaffle() {
     const r = cur();
     document.title = r.name;
@@ -549,10 +764,7 @@
     $('rCount').textContent = countText(r.date);
     $('rPrice').textContent = money(r.price) + ' c/u';
 
-    const nums = Object.keys(r.sold).sort();
-    const paid = nums.filter(n => r.sold[n].paid).length;
-    const pend = nums.length - paid;
-    const sold = nums.length;
+    const st = statsOf(r), p = r.price;
 
     [...grid.children].forEach(b => {
       const s = r.sold[b.textContent];
@@ -560,105 +772,161 @@
       b.title = s ? `${s.name}${s.phone ? ' · ' + s.phone : ''}` : 'Disponible';
     });
 
-    $('sSold').textContent = sold;
-    $('sAvail').textContent = 100 - sold;
-    $('sPct').textContent = sold + '%';
-    $('sPaid').textContent = paid;
-    $('sPend').textContent = pend;
-    $('sTotal').textContent = money(r.price * 100);
-    $('bPaid').style.width = paid + '%';
-    $('bPend').style.width = pend + '%';
-    $('mPaid').textContent = money(paid * r.price);
-    $('mPend').textContent = money(pend * r.price);
-    $('mLeft').textContent = money((100 - sold) * r.price);
-    const cash = nums.filter(n => r.sold[n].paid && r.sold[n].method === 'efectivo').length;
-    const trans = nums.filter(n => r.sold[n].paid && r.sold[n].method === 'transferencia').length;
-    $('mCashL').textContent = `Efectivo (${cash})`;
-    $('mCash').textContent = money(cash * r.price);
-    $('mTransL').textContent = `Transferencia (${trans})`;
-    $('mTrans').textContent = money(trans * r.price);
-    $('hSold').textContent = sold;
-    $('hAvail').textContent = 100 - sold;
-    $('hPaid').textContent = money(paid * r.price);
-    $('hPend').textContent = money(pend * r.price);
-    $('hbPaid').style.width = paid + '%';
-    $('hbPend').style.width = pend + '%';
+    // Barra fija
+    $('hSold').textContent = st.sold;
+    $('hAvail').textContent = 100 - st.sold;
+    $('hPaid').textContent = money(st.paid * p);
+    $('hPend').textContent = money(st.pend * p);
+    $('hbPaid').style.width = st.paid + '%';
+    $('hbPend').style.width = st.pend + '%';
+
+    // Tablero: totales y últimas ventas
+    $('tSoldN').textContent = st.sold; $('tSoldM').textContent = money(st.sold * p);
+    $('tPaidN').textContent = st.paid; $('tPaidM').textContent = money(st.paid * p);
+    $('tPendN').textContent = st.pend; $('tPendM').textContent = money(st.pend * p);
+    renderRecent(r);
+
+    // Resumen
+    $('sSold').textContent = st.sold;
+    $('sAvail').textContent = 100 - st.sold;
+    $('sPct').textContent = st.sold + '%';
+    $('sPaid').textContent = st.paid;
+    $('sPend').textContent = st.pend;
+    $('sTotal').textContent = money(p * 100);
+    $('bPaid').style.width = st.paid + '%';
+    $('bPend').style.width = st.pend + '%';
+    $('mPaid').textContent = money(st.paid * p);
+    $('mPend').textContent = money(st.pend * p);
+    $('mLeft').textContent = money((100 - st.sold) * p);
     const free = [...Array(100).keys()].map(pad).filter(n => !r.sold[n]);
     $('freeList').textContent = free.length ? 'Disponibles: ' + free.join(', ') : '¡Rifa completa!';
+    renderMethods(r, st);
 
     $('bannerClear').classList.toggle('hidden', !r.banner);
     $('bannerBtn').textContent = r.banner ? 'Cambiar mi diseño (encabezado)' : 'Subir mi diseño (encabezado)';
     drawShare(r);
-    renderTable();
+    renderBuyers(r, st);
+    setTab(tab);
   }
 
-  function renderTable() {
-    const r = cur();
-    const q = $('search').value.trim().toLowerCase();
-    const f = $('filter').value;
-    const rows = Object.keys(r.sold).sort().filter(n => {
-      const s = r.sold[n];
-      if (f === 'paid' && !s.paid) return false;
-      if (f === 'pend' && s.paid) return false;
-      if ((f === 'efectivo' || f === 'transferencia') && !(s.paid && s.method === f)) return false;
-      return !q || n.includes(q) || s.name.toLowerCase().includes(q) || (s.phone || '').includes(q);
+  function renderRecent(r) {
+    const box = $('recent'), note = $('recentNote');
+    box.innerHTML = '';
+    const dated = Object.entries(r.sold).filter(([, s]) => s.at).sort((a, b) => b[1].at - a[1].at);
+    const undated = Object.keys(r.sold).length - dated.length;
+    dated.slice(0, 8).forEach(([n, s]) => {
+      box.append(el('div', { className: 'ritem2', onclick: () => openModal(n) },
+        el('span', { className: 'tag', textContent: n }),
+        el('div', { className: 'rinfo' },
+          el('b', { textContent: s.name }),
+          el('small', { textContent: relTime(s.at) + ' · ' + payLabel(s) })),
+        el('span', { className: 'pip ' + (s.paid ? 'paid' : 'pend') })));
     });
-    const tb = $('tbody');
-    tb.innerHTML = '';
+    if (!dated.length) box.append(el('div', { className: 'empty', textContent: 'Las ventas nuevas aparecerán aquí.' }));
+    note.classList.toggle('hidden', !undated);
+    note.textContent = `${undated} venta${undated === 1 ? '' : 's'} anterior${undated === 1 ? '' : 'es'} sin fecha registrada.`;
+  }
+
+  function renderMethods(r, st) {
+    const box = $('methods');
+    box.innerHTML = '';
+    const rows = [
+      { l: 'Efectivo', n: st.cash, c: 'cash' },
+      { l: 'Transferencia', n: st.trans, c: 'trans' },
+      { l: 'Nequi', n: st.nequi, c: 'nequi', sub: true },
+      { l: 'Nu', n: st.nu, c: 'nu', sub: true },
+      { l: 'Sin cuenta indicada', n: st.transnb, c: 'none', sub: true, opt: true },
+      { l: 'Pagado sin método indicado', n: st.nometh, c: 'none', opt: true },
+    ];
+    rows.filter(x => !x.opt || x.n > 0).forEach(x => {
+      const pct = st.paid ? Math.round(x.n * 100 / st.paid) : 0;
+      box.append(el('div', { className: 'mrow' + (x.sub ? ' sub' : '') },
+        el('span', { textContent: x.l }),
+        el('b', { textContent: money(x.n * r.price) }),
+        el('small', { textContent: `${x.n} número${x.n === 1 ? '' : 's'} · ${pct}% de lo pagado` }),
+        el('div', { className: 'mbar' }, el('div', { className: x.c, style: `width:${pct}%` }))));
+    });
+    box.append(el('div', { className: 'mrow total' },
+      el('span', { textContent: 'Total pagado' }),
+      el('b', { textContent: money(st.paid * r.price) }),
+      el('small', { textContent: `${st.paid} número${st.paid === 1 ? '' : 's'}` })));
+  }
+
+  /* Compradores */
+  function matchRows(r) {
+    const F = curFilter(), q = $('search').value.trim().toLowerCase();
+    return Object.keys(r.sold).sort().filter(n => {
+      const s = r.sold[n];
+      return F.f(s) && (!q || n.includes(q) || s.name.toLowerCase().includes(q) || (s.phone || '').includes(q));
+    });
+  }
+
+  function renderBuyers(r, st) {
+    st = st || statsOf(r);
+    const all = Object.values(r.sold);
+    FILTERS.forEach(f => {
+      const n = all.filter(f.f).length, c = chipEls[f.k];
+      c.count.textContent = n;
+      c.b.classList.toggle('on', f.k === filterKey);
+      c.b.classList.toggle('hidden', !!f.optional && n === 0 && f.k !== filterKey);
+    });
+
+    const F = curFilter(), rows = matchRows(r), searching = !!$('search').value.trim();
+    $('ftN').textContent = rows.length;
+    $('ftNL').textContent = searching ? 'Números encontrados' : 'Números';
+    $('ftM').textContent = money(rows.length * r.price);
+    $('ftML').textContent = searching ? 'Valor de la búsqueda' : F.t;
+    $('ftMT').className = 'tile' + (['paid', 'cash', 'trans', 'nequi', 'nu'].includes(F.k) ? ' g' : F.k === 'pend' ? ' y' : '');
+
+    const box = $('blist');
+    box.innerHTML = '';
     rows.forEach(n => {
       const s = r.sold[n];
       const digits = (s.phone || '').replace(/\D/g, '');
       const phone = digits
         ? el('a', { href: 'https://wa.me/' + digits, target: '_blank', rel: 'noopener', textContent: s.phone, title: 'Abrir WhatsApp' })
-        : el('span', { textContent: '—', style: 'color:var(--muted)' });
-      const st = el('button', {
-        className: 'st ' + (s.paid ? 'paid' : 'pend'), textContent: s.paid ? 'Pagado' : 'Pendiente',
-        title: 'Clic para cambiar',
+        : el('span', { textContent: 'Sin celular', style: 'color:var(--muted)' });
+      const stBtn = el('button', {
+        className: 'st ' + (s.paid ? 'paid' : 'pend'), textContent: s.paid ? 'Pagado' : 'Pendiente', title: 'Toca para cambiar',
         onclick: () => {
-          if (!s.paid) { openModal(n, true); return; } // al marcar pagado se pide el método
-          s.paid = false; s.method = ''; persist(r); renderRaffle(); toast('Marcado como pendiente');
+          if (!s.paid) { openModal(n, true); return; } // al marcar pagado se pide método y cuenta
+          s.paid = false; s.method = ''; s.bank = ''; persist(r); renderRaffle(); toast('Marcado como pendiente');
         }
       });
-      const method = s.paid && s.method
-        ? el('span', { className: 'badge ' + (s.method === 'efectivo' ? 'cash' : 'trans'), textContent: s.method === 'efectivo' ? 'Efectivo' : 'Transferencia' })
-        : el('span', { textContent: '—', style: 'color:var(--muted)' });
-      const tr = el('tr', { onclick: e => { if (!e.target.closest('a, button')) openModal(n); } },
-        el('td', {}, el('span', { className: 'tag', textContent: n })),
-        el('td', { textContent: s.name }),
-        el('td', {}, phone),
-        el('td', {}, st),
-        el('td', {}, method),
-        el('td', { textContent: money(r.price) }),
-        el('td', {}, el('button', { className: 'btn sm', textContent: 'Editar', onclick: () => openModal(n) })));
-      tb.append(tr);
+      const badges = el('div', { className: 'bd' });
+      if (s.paid && s.method) badges.append(el('span', { className: 'badge ' + (s.method === 'efectivo' ? 'cash' : 'trans'), textContent: s.method === 'efectivo' ? 'Efectivo' : 'Transferencia' }));
+      if (isTrans(s) && s.bank) badges.append(el('span', { className: 'badge ' + s.bank, textContent: BANKS[s.bank] }));
+      box.append(el('div', { className: 'bcard', onclick: e => { if (!e.target.closest('a, button')) openModal(n); } },
+        el('span', { className: 'tag', textContent: n }),
+        el('div', { className: 'bname', textContent: s.name }),
+        el('div', { className: 'bph' }, phone),
+        el('div', { className: 'bst' }, stBtn),
+        badges));
     });
     const em = $('tEmpty');
     em.classList.toggle('hidden', rows.length > 0);
-    em.textContent = Object.keys(r.sold).length ? 'Sin resultados para ese filtro.' : 'Todavía no hay compradores. Toca un número para empezar.';
+    em.textContent = Object.keys(r.sold).length ? 'No hay resultados con este filtro.' : 'Todavía no hay compradores. Toca un número del tablero para empezar.';
   }
-  $('search').oninput = renderTable;
-  $('filter').onchange = renderTable;
+  $('search').oninput = () => { if (cur()) renderBuyers(cur()); };
 
   function listText() {
-    const r = cur();
-    return [r.name + ' — ' + fmtDate(r.date), ...Object.keys(r.sold).sort().map(n => {
-      const s = r.sold[n];
-      return `${n} | ${s.name} | ${s.phone || 'sin celular'} | ${s.paid ? 'Pagado' + (s.method ? ' (' + s.method + ')' : '') : 'Pendiente'}`;
-    })].join('\n');
+    const r = cur(), F = curFilter(), rows = matchRows(r);
+    return [`${r.name} — ${F.l}: ${rows.length} número${rows.length === 1 ? '' : 's'} · ${money(rows.length * r.price)}`,
+      ...rows.map(n => { const s = r.sold[n]; return `${n} | ${s.name} | ${s.phone || 'sin celular'} | ${payLabel(s)}`; })].join('\n');
   }
   $('copy').onclick = () => {
     navigator.clipboard.writeText(listText());
     $('copy').textContent = 'Copiado';
-    setTimeout(() => $('copy').textContent = 'Copiar', 1500);
+    setTimeout(() => $('copy').textContent = 'Copiar lista', 1500);
   };
   $('csv').onclick = () => {
-    const r = cur();
+    const r = cur(), F = curFilter();
     const q = v => '"' + String(v).replace(/"/g, '""') + '"';
-    const lines = ['Numero,Nombre,Celular,Estado,Metodo,Valor', ...Object.keys(r.sold).sort().map(n => {
+    const lines = ['Numero,Nombre,Celular,Estado,Metodo,Cuenta,Valor', ...matchRows(r).map(n => {
       const s = r.sold[n];
-      return [n, q(s.name), q(s.phone || ''), s.paid ? 'Pagado' : 'Pendiente', s.paid ? (s.method || '') : '', r.price].join(',');
+      return [n, q(s.name), q(s.phone || ''), s.paid ? 'Pagado' : 'Pendiente', s.paid ? (s.method || '') : '', isTrans(s) ? (BANKS[s.bank] || '') : '', r.price].join(',');
     })];
-    const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' })), download: r.name + '.csv' });
+    const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' })), download: `${r.name} - ${F.l}.csv` });
     a.click(); URL.revokeObjectURL(a.href);
   };
 
@@ -820,7 +1088,7 @@
     if (!s) { out.textContent = `El número ${n} no fue vendido (quedó disponible).`; return; }
     out.append(el('div', { innerHTML: '' }),
       el('b', { textContent: `Número ${n}: ${s.name}`, style: 'font-size:1.15rem' }),
-      el('div', { textContent: `Estado: ${s.paid ? 'Pagado' + (s.method ? ' (' + s.method + ')' : '') : 'Pago pendiente'}`, style: 'margin-top:6px' }));
+      el('div', { textContent: `Estado: ${payLabel(s)}`, style: 'margin-top:6px' }));
     const digits = (s.phone || '').replace(/\D/g, '');
     out.append(digits
       ? el('div', { style: 'margin-top:6px' }, 'Celular: ', el('a', { href: 'https://wa.me/' + digits, target: '_blank', rel: 'noopener', textContent: s.phone, style: 'color:#93c5fd' }))
@@ -830,18 +1098,28 @@
   $('winNum').onkeydown = e => { if (e.key === 'Enter') findWinner(); };
 
   /* ---------- Modal ---------- */
-  let editing = null, paidSel = false, methodSel = 'efectivo';
+  let editing = null, paidSel = false, methodSel = 'efectivo', bankSel = '';
+  function syncBoxes() {
+    $('methodBox').classList.toggle('hidden', !paidSel);
+    $('bankBox').classList.toggle('hidden', !(paidSel && methodSel === 'transferencia'));
+  }
   function setSeg(paid) {
     paidSel = paid;
     document.querySelectorAll('#segPay button').forEach(b => b.classList.toggle('on', (b.dataset.v === 'paid') === paid));
-    $('methodBox').classList.toggle('hidden', !paid);
+    syncBoxes();
   }
   function setMethod(m) {
     methodSel = m;
     document.querySelectorAll('#segMethod button').forEach(b => b.classList.toggle('on', b.dataset.v === m));
+    syncBoxes();
+  }
+  function setBank(k) {
+    bankSel = k;
+    document.querySelectorAll('#segBank button').forEach(b => b.classList.toggle('on', b.dataset.v === k));
   }
   document.querySelectorAll('#segPay button').forEach(b => b.onclick = () => setSeg(b.dataset.v === 'paid'));
   document.querySelectorAll('#segMethod button').forEach(b => b.onclick = () => setMethod(b.dataset.v));
+  document.querySelectorAll('#segBank button').forEach(b => b.onclick = () => setBank(b.dataset.v));
 
   let toastTimer;
   function toast(msg) {
@@ -859,6 +1137,7 @@
     $('mPhone').value = s ? s.phone : '';
     setSeg(forcePaid ? true : s ? s.paid : false);
     setMethod(s && s.method ? s.method : 'efectivo');
+    setBank(s && s.bank ? s.bank : '');
     $('mFree').classList.toggle('hidden', !s);
     $('overlay').classList.remove('hidden');
     $('mName').focus();
@@ -870,8 +1149,15 @@
 
   $('mForm').onsubmit = e => {
     e.preventDefault();
-    cur().sold[editing] = { name: $('mName').value.trim(), phone: $('mPhone').value.trim(), paid: paidSel, method: paidSel ? methodSel : '' };
-    persist(cur()); closeModal(); renderRaffle(); toast(`Número ${editing} guardado`);
+    const viaTransfer = paidSel && methodSel === 'transferencia';
+    if (viaTransfer && !bankSel) { toast('Elige si fue a Nequi o a Nu'); return; }
+    const r = cur(), old = r.sold[editing];
+    // Se conservan los campos que ya existían; la fecha de venta solo se estampa en ventas nuevas.
+    const rec = { ...old, name: $('mName').value.trim(), phone: $('mPhone').value.trim(), paid: paidSel,
+                  method: paidSel ? methodSel : '', bank: viaTransfer ? bankSel : '' };
+    if (!old) rec.at = Date.now();
+    r.sold[editing] = rec;
+    persist(r); closeModal(); renderRaffle(); toast(`Número ${editing} guardado`);
   };
   $('mFree').onclick = () => {
     delete cur().sold[editing];
