@@ -160,6 +160,8 @@
   #toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--gold); color: #1b1402; font-weight: 700;
            padding: 10px 20px; border-radius: 99px; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
   #toast.on { opacity: 1; transform: translate(-50%, 0); }
+  #toast.act { pointer-events: auto; display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+  #toast button { border: none; background: rgba(0,0,0,.2); color: inherit; font: inherit; font-weight: 800; padding: 6px 12px; border-radius: 99px; cursor: pointer; }
 
   #shareCanvas { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; border-radius: 12px; border: 1px solid var(--line-2); box-shadow: 0 10px 28px rgba(0,0,0,.35); }
   .share-actions { display: flex; gap: 10px; margin-top: 16px; max-width: 520px; margin-left: auto; margin-right: auto; }
@@ -890,7 +892,10 @@
         className: 'st ' + (s.paid ? 'paid' : 'pend'), textContent: s.paid ? 'Pagado' : 'Pendiente', title: 'Toca para cambiar',
         onclick: () => {
           if (!s.paid) { openModal(n, true); return; } // al marcar pagado se pide método y cuenta
-          s.paid = false; s.method = ''; s.bank = ''; persist(r); renderRaffle(); toast('Marcado como pendiente');
+          if (!confirm(`¿Marcar el número ${n} como pendiente? Se borrará su método de pago y su cuenta.`)) return;
+          const antes = { ...s };
+          s.paid = false; s.method = ''; s.bank = ''; persist(r); renderRaffle();
+          toast(`Número ${n} marcado como pendiente`, () => { r.sold[n] = antes; persist(r); renderRaffle(); toast('Cambio deshecho'); });
         }
       });
       const badges = el('div', { className: 'bd' });
@@ -1122,11 +1127,12 @@
   document.querySelectorAll('#segBank button').forEach(b => b.onclick = () => setBank(b.dataset.v));
 
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, undo) {
     const t = $('toast');
-    t.textContent = msg; t.classList.add('on');
+    t.textContent = msg; t.classList.add('on'); t.classList.toggle('act', !!undo);
+    if (undo) t.append(el('button', { textContent: 'Deshacer', onclick: () => { t.classList.remove('on'); undo(); } }));
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('on'), 1800);
+    toastTimer = setTimeout(() => t.classList.remove('on'), undo ? 9000 : 1800);
   }
 
   function openModal(n, forcePaid) {
